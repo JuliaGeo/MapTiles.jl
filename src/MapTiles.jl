@@ -10,7 +10,7 @@ module MapTiles
     return the assembled image.
     """
     function fetchmap(minlat, minlon, maxlat, maxlon, z;
-            provider::AbstractProvider = OpenStreetMapProvider(variant="classic")
+            provider::AbstractProvider = OpenStreetMapProvider(variant="standard")
         )
         x0, y0, x1, y1 = tilebox(minlat, minlon, maxlat, maxlon, z)
         x0, y0, x1, y1 = correctbox(x0, y0, x1, y1,z)

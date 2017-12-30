@@ -105,7 +105,7 @@ function geturl(provider::OpenStreetMapProvider,x,y,z)
     elseif provider.variant == "humanitarian"
         "http://tile.openstreetmap.fr/hot/$z/$x/$y.png"
     else
-        warn("Unknown provider: $(provider.variant), defaulting to classic")
+        warn("Unknown provider: $(provider.variant), defaulting to standard")
         "http://tile.openstreetmap.org/$z/$x/$y.png"
     end
 end
