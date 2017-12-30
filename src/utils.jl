@@ -12,12 +12,18 @@ function resolution(lat, z)
     meter_per_pixel * cos(lat) / (2^z)
 end
 
-"Convert from `lat,lon` to tile numbers"
+"Convert from `lat,lon` to tile numbers (float64)"
 function deg2num(lat,lon,z)
     latradian = deg2rad(lat); n = 2^z
-    xtile = floor(Int, (lon + 180)/360*n)
-    ytile = floor(Int, (1 - log(tan(latradian) + 1/cos(latradian))/pi)/2*n)
-    xtile, ytile
+    x = (lon + 180)/360*n
+    y = (1 - log(tan(latradian) + 1/cos(latradian))/pi)/2*n
+    x, y
+end
+
+"Convert from `lat,lon` to tile numbers, rounding them down to integers"
+function ideg2num(lat,lon,z)
+    x, y = deg2num(lat,lon,z)
+    floor(Int, x), floor(Int, y)
 end
 
 function num2deg(x,y,z)
@@ -27,22 +33,27 @@ function num2deg(x,y,z)
     latdegree,londegree
 end
 
-# Tile numbers to lon./lat.
-# import math
-# def num2deg(xtile, ytile, zoom):
-#   n = 2.0 ** zoom
-#   lon_deg = xtile / n * 360.0 - 180.0
-#   lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
-#   lat_deg = math.degrees(lat_rad)
-#   return (lat_deg, lon_deg)
+# def get_tile_coords(lat, lon, z):
+#     """Convert geographical coordinates to tile coordinates (integers),
+#     at a given zoom level."""
+#     return deg2num(lat, lon, z, do_round=False)
 
+"Convert geographical coordinates to tile coordinates"
+function deg2px(lat, lon, z, xmin, ymin, tilesizex, tilesizey)
+    x, y = deg2num(lat, lon, z)
+    floor(Int,(x-xmin)*tilesizex)+1, floor(Int,(y-ymin)*tilesizey)+1
+end
+
+deg2px(map::Map, lat, lon) = deg2px(
+    lat, lon, map.zoom, map.xmin, map.ymin, map.tilesize[2], map.tilesize[1]
+)
+
+"""
+Convert a box from geographical to tile coordinates (integers), at a given zoom.
+"""
 function tilebox(lat0, lon0, lat1, lon1, z)
-    """Convert a box in geographical coordinates to a box in
-    tile coordinates (integers), at a given zoom level.
-    box_latlon is lat0, lon0, lat1, lon1.
-    """
-    x0, y0 = deg2num(lat0, lon0, z)
-    x1, y1 = deg2num(lat1, lon1, z)
+    x0, y0 = ideg2num(lat0, lon0, z)
+    x1, y1 = ideg2num(lat1, lon1, z)
     (x0, y0, x1, y1)
 end
 
