@@ -236,6 +236,7 @@ end
 OpenTopoMap is a project aiming at rendering topographic maps from OSM and SRTM
 data. The map style should look familiar to Germans.
 
+## Terms of Use
 Please make sure to stick to the licence CC-BY-SA and always name opentopomap.org.
 If you plan to use the tiles for bigger projects, please contact either
 
@@ -244,6 +245,7 @@ If you plan to use the tiles for bigger projects, please contact either
 
 for more information.
 
+## References
 Visit http://wiki.openstreetmap.org/wiki/OpenTopoMap for further details.
 """
 Parameters.@with_kw struct OpenTopoMapProvider <: AbstractProvider
@@ -625,6 +627,11 @@ Parameters.@with_kw struct NASAGIBSProvider <: AbstractProvider
     maxtiles::Int = 150_000
 end
 function geturl(provider::NASAGIBSProvider,x,y,z)
+    ext = if provider.variant in ("MODIS_Terra_Land_Surface_Temp_Day", "MODIS_Terra_Snow_Cover", "MODIS_Terra_Aerosol", "MODIS_Terra_Chlorophyll_A")
+        "png"
+    else
+        "jpg"
+    end
     maxzoom = if provider.variant == "MODIS_Terra_Aerosol"
         6
     elseif provider.variant in ("MODIS_Terra_Chlorophyll_A", "MODIS_Terra_Land_Surface_Temp_Day")
@@ -634,7 +641,7 @@ function geturl(provider::NASAGIBSProvider,x,y,z)
     else
         9
     end
-    "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/$(provider.variant)/default/$(provider.time)/$(provider.tilematrixset)$maxzoom/$z/$y/$x.png"
+    "https://map1.vis.earthdata.nasa.gov/wmts-webmerc/$(provider.variant)/default/$(provider.time)/$(provider.tilematrixset)$maxzoom/$z/$y/$x.$ext"
 end
 usagewarning(provider::NASAGIBSProvider) =
     string("You are requesting a very large map, please see the Bulk Downloading section of ",
