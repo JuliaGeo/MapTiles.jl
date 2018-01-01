@@ -563,6 +563,61 @@ geturl(provider::CARTOProvider, x::Integer, y::Integer, z::Integer) =
 
 """
 ```
+GoogleMapsProvider <: AbstractProvider
+    variant::String = ""
+    maxtiles::Int = typemax(Int)
+end
+```
+
+The Google Static Maps API lets you embed a Google Maps image on your web page
+without requiring JavaScript or any dynamic page loading. The Google Static Maps
+API service creates your map based on URL parameters sent through a standard
+HTTP request and returns the map as an image you can display on your web page.
+
+## Possible Variants
+    * `roadmap` (default)
+    * `terrain`
+    * `satellite`
+    * `hybrid`
+
+For more details, visit https://developers.google.com/maps/documentation/static-maps/intro#MapTypes.
+
+## Terms of Service
+Please abide by the terms in https://developers.google.com/maps/terms?hl=en#section_10_5
+
+## References
+For further details, visit https://developers.google.com/maps/documentation/static-maps/
+"""
+Parameters.@with_kw struct GoogleMapsProvider <: AbstractProvider
+    variant::String = ""
+    maxtiles::Int = typemax(Int)
+end
+function geturl(provider::GoogleMapsProvider, x::Integer, y::Integer, z::Integer)
+    layer = if provider.variant == ""
+        ""
+    elseif provider.variant == "roads-only"
+        "lyrs=h"
+    elseif provider.variant == "roadmap"
+        "lyrs=m"
+    elseif provider.variant == "terrain"
+        "lyrs=p"
+    elseif provider.variant == "altered-roadmap"
+        "lyrs=r"
+    elseif provider.variant == "satellite"
+        "lyrs=s"
+    elseif provider.variant == "terrain-only"
+        "lyrs=t"
+    elseif provider.variant == "hybrid"
+        "lyrs=y"
+    else
+        warn("unknown map type: $(provider.variant), defaulting to standard")
+        ""
+    end
+    "http://mt1.google.com/vt/$layer&x=$x&y=$y&z=$z"
+end
+
+"""
+```
 struct NASAGIBSProvider <: AbstractProvider
     variant::String = "MODIS_Terra_CorrectedReflectance_TrueColor"
     maxtiles::Int = typemax(Int)
