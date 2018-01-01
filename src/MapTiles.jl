@@ -25,7 +25,7 @@ module MapTiles
     Fetch map tiles composing a box at a given zoom level, and
     return the assembled image.
     """
-    function fetchmap(minlon, minlat, maxlon, maxlat, z=18;
+    function fetchmap(minlon::Real, minlat::Real, maxlon::Real, maxlat::Real, z::Integer=18;
             maxtiles::Int = 16,
             provider::AbstractProvider = OpenStreetMapProvider(variant="standard")
         )
