@@ -49,7 +49,7 @@ usagewarning(provider::AbstractProvider) =
            "setting up your own tile server instead. For details, ",
            "please see https://switch2osm.org/serving-tiles/.")
 
-fetchtile(provider::AbstractProvider,x,y,z) =
+fetchtile(provider::AbstractProvider, x::Integer, y::Integer, z::Integer) =
         ImageMagick.readblob(Requests.get(geturl(provider,x,y,z)).data)
 
 """
@@ -91,7 +91,7 @@ Parameters.@with_kw struct OpenStreetMapProvider <: AbstractProvider
     maxtiles::Int = 16
 end
 
-function geturl(provider::OpenStreetMapProvider,x,y,z)
+function geturl(provider::OpenStreetMapProvider, x::Integer, y::Integer, z::Integer)
     if provider.variant == "standard"
         "http://tile.openstreetmap.org/$z/$x/$y.png"
     elseif provider.variant == "blackwhite"
@@ -153,7 +153,7 @@ See https://www.mediawiki.org/wiki/Maps for details.
 Parameters.@with_kw struct WikimediaMapsProvider <: AbstractProvider
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::WikimediaMapsProvider,x,y,z) =
+geturl(provider::WikimediaMapsProvider, x::Integer, y::Integer, z::Integer) =
     "https://maps.wikimedia.org/osm-intl/$z/$x/$y.png"
 
 """
@@ -194,7 +194,7 @@ Parameters.@with_kw struct OpenCycleMapProvider <: AbstractProvider
     variant::String = "cycle"
     maxtiles::Int = typemax(Int)
 end
-function geturl(provider::OpenCycleMapProvider,x,y,z)
+function geturl(provider::OpenCycleMapProvider, x::Integer, y::Integer, z::Integer)
     if provider.variant == "cycle"
         "http://tile.opencyclemap.org/cycle/$z/$x/$y.png"
     elseif provider.variant == "transport"
@@ -222,7 +222,7 @@ for details.
 Parameters.@with_kw struct OpenSeaMapProvider <: AbstractProvider
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::OpenSeaMapProvider,x,y,z) =
+geturl(provider::OpenSeaMapProvider, x::Integer, y::Integer, z::Integer) =
     "http://tiles.openseamap.org/seamark/$z/$x/$y.png"
 
 
@@ -251,7 +251,7 @@ Visit http://wiki.openstreetmap.org/wiki/OpenTopoMap for further details.
 Parameters.@with_kw struct OpenTopoMapProvider <: AbstractProvider
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::OpenTopoMapProvider,x,y,z) =
+geturl(provider::OpenTopoMapProvider, x::Integer, y::Integer, z::Integer) =
     "http://tile.opentopomap.org/$z/$x/$y.png"
 
 """
@@ -298,7 +298,7 @@ Parameters.@with_kw struct OpenWeatherMapProvider <: AbstractProvider
     variant::String = "clouds"
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::OpenWeatherMapProvider,x,y,z) =
+geturl(provider::OpenWeatherMapProvider, x::Integer, y::Integer, z::Integer) =
     "http://tile.openweathermap.org/map/$(provider.variant)/$z/$x/$y.png?appid=$(provider.apikey)"
 
 """
@@ -346,7 +346,7 @@ Parameters.@with_kw struct ThunderForestProvider <: AbstractProvider
     apikey::String
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::ThunderForestProvider,x,y,z) =
+geturl(provider::ThunderForestProvider, x::Integer, y::Integer, z::Integer) =
     "http://tile.thunderforest.com/$(provider.variant)/$z/$x/$y.png?apikey=$(provider.apikey)"
 
 """
@@ -402,7 +402,7 @@ Parameters.@with_kw struct OpenMapSurferProvider <: AbstractProvider
     variant::String = "roads"
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::OpenMapSurferProvider,x,y,z) =
+geturl(provider::OpenMapSurferProvider, x::Integer, y::Integer, z::Integer) =
     "http://korona.geog.uni-heidelberg.de/tiles/$(provider.variant)/x=$x&y=$y&z=$z"
 
 """
@@ -427,7 +427,7 @@ Parameters.@with_kw struct HyddaProvider <: AbstractProvider
     variant::String = "full"
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::HyddaProvider,x,y,z) =
+geturl(provider::HyddaProvider, x::Integer, y::Integer, z::Integer) =
     "http://tile.openstreetmap.se/hydda/$(provider.variant)/$z/$x/$y.png"
 
 """
@@ -474,7 +474,7 @@ Parameters.@with_kw struct MapBoxProvider <: AbstractProvider
     id::String = "streets"
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::MapBoxProvider,x,y,z) =
+geturl(provider::MapBoxProvider, x::Integer, y::Integer, z::Integer) =
     "https://api.tiles.mapbox.com/v4/mapbox.$(provider.id)/$z/$x/$y.png?access_token=$(provider.accesstoken)"
 
 """
@@ -521,7 +521,7 @@ Parameters.@with_kw struct StamenProvider <: AbstractProvider
     variant::String = "toner"
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::StamenProvider,x,y,z) =
+geturl(provider::StamenProvider, x::Integer, y::Integer, z::Integer) =
     "http://tile.stamen.com/$(provider.variant)/$z/$x/$y.png"
 
 """
@@ -558,7 +558,7 @@ Parameters.@with_kw struct CARTOProvider <: AbstractProvider
     variant::String = "light_all"
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::CARTOProvider,x,y,z) =
+geturl(provider::CARTOProvider, x::Integer, y::Integer, z::Integer) =
     "http://basemaps.cartocdn.com/$(provider.variant)/$z/$x/$y.png"
 
 """
@@ -626,7 +626,7 @@ Parameters.@with_kw struct NASAGIBSProvider <: AbstractProvider
     tilematrixset::String = "GoogleMapsCompatible_Level"
     maxtiles::Int = 150_000
 end
-function geturl(provider::NASAGIBSProvider,x,y,z)
+function geturl(provider::NASAGIBSProvider, x::Integer, y::Integer, z::Integer)
     ext = if provider.variant in ("MODIS_Terra_Land_Surface_Temp_Day", "MODIS_Terra_Snow_Cover", "MODIS_Terra_Aerosol", "MODIS_Terra_Chlorophyll_A")
         "png"
     else
@@ -666,5 +666,5 @@ Parameters.@with_kw struct ESRIProvider <: AbstractProvider
     variant::String = "World_Street_Map"
     maxtiles::Int = typemax(Int)
 end
-geturl(provider::ESRIProvider,x,y,z) =
+geturl(provider::ESRIProvider, x::Integer, y::Integer, z::Integer) =
     "http://server.arcgisonline.com/ArcGIS/rest/services/$(provider.variant)/MapServer/tile/$z/$x/$y"
