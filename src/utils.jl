@@ -1,5 +1,5 @@
 """
-Determine the amount of meters per pixel
+Determine the number of meters per pixel
 
 ### Parameters
 * `lat`: latitude in radians
@@ -43,14 +43,26 @@ lonlat2tile(basemap::BaseMap, lon::Real, lat::Real) = lonlat2tile(
 """
 Convert a box from geographical to tile coordinates (integers), at a given zoom.
 """
-
-function tilebox(minlon::Real, minlat::Real, maxlon::Real, maxlat::Real, z::Integer)
+function tilebox(
+        minlon::Real,
+        minlat::Real,
+        maxlon::Real,
+        maxlat::Real,
+        z::Integer
+    )
     xmin, ymin = ilonlat2tile(minlon, minlat, z)
     xmax, ymax = ilonlat2tile(maxlon, maxlat, z)
     xmin, ymin, xmax, ymax
 end
 
-function correctbox(xmin::Integer, ymin::Integer, xmax::Integer, ymax::Integer, z::Integer)
+"Determine the correct tiles for `(xmin, ymin, xmax, ymax)` at zoom `z`"
+function correctbox(
+        xmin::Integer,
+        ymin::Integer,
+        xmax::Integer,
+        ymax::Integer,
+        z::Integer
+    )
     new_xmin = max(0, min(xmin, xmax))
     new_ymin = max(0, min(ymin, ymax))
     new_xmax = min(2^z - 1, max(xmin, xmax))
