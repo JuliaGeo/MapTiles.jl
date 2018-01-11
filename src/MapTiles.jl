@@ -1,6 +1,10 @@
 module MapTiles
 
-    import Parameters, Requests, ImageMagick, ProgressMeter, RecipesBase, GeoInterface
+    import Logging, Parameters, ProgressMeter
+    import Requests, ImageMagick, ProtoBuf
+    import RecipesBase, GeoInterface
+
+    include("protobuf/2.1/vector_tile.jl")
 
     mutable struct BaseMap{T}
         img::Matrix{T}
@@ -25,7 +29,8 @@ module MapTiles
     Fetch map tiles composing a box at a given zoom level, and
     return the assembled image.
     """
-    function fetchmap(minlon::Real, minlat::Real, maxlon::Real, maxlat::Real, z::Integer=18;
+    function fetchmap(
+            minlon::Real, minlat::Real, maxlon::Real, maxlat::Real, z::Integer=18;
             maxtiles::Int = 16,
             provider::AbstractProvider = OpenStreetMapProvider(variant="standard")
         )
@@ -38,14 +43,29 @@ module MapTiles
             xmin, ymin, xmax, ymax = correctbox(xmin, ymin, xmax, ymax, z)
             sx, sy = boxsize(provider, xmin, ymin, xmax, ymax)
         end
-        tmptile = fetchtile(provider, xmin, ymin, z) # fetch a tile for metadata
+        Logging.info("Setting zoom to ", z)
+        Logging.info("Converting bounding latlon to tiles: ",
+            xmin, ",", ymin, ",", xmax, ",", ymax, " (xmin,ymin,xmax,ymax)"
+        )
+        fetchtiles(xmin, ymin, xmax, ymax, z, maxtiles=maxtiles, provider=provider)
+    end
+
+    function fetchtiles(
+            xmin::Integer, ymin::Integer, xmax::Integer, ymax::Integer, z::Integer;
+            maxtiles::Int = 16,
+            provider::AbstractProvider = OpenStreetMapProvider(variant="standard")
+        )
+        sx, sy = boxsize(provider, xmin, ymin, xmax, ymax)
+        tmptile = fetchrastertile(provider, xmin, ymin, z) # fetch a tile for metadata
+        T = eltype(tmptile)
         tilesizey, tilesizex = size(tmptile)
-        img = Matrix{eltype(tmptile)}(sy*tilesizey, sx*tilesizex)
-        xmin, xmax, ymin, ymax
+        Logging.info("Tiles: Matrix{",T,"}(", tilesizey, ",", tilesizex, ")")
+        img = Matrix{T}(sy*tilesizey, sx*tilesizex)
+        Logging.info("Requesting ", sx, " x ", sy, " tiles")
         ProgressMeter.@showprogress for x in xmin:xmax, y in ymin:ymax
             px = tilesizex * (x - xmin); py = tilesizey * (y - ymin)
             img[1+(py:(py+tilesizey-1)), 1+(px:(px+tilesizex-1))] =
-                fetchtile(provider, x, y, z)
+                fetchrastertile(provider, x, y, z)
         end
         BaseMap(img, z, min(xmin, xmax), min(ymin, ymax), (tilesizey, tilesizex))
     end

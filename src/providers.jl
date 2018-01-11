@@ -1,5 +1,5 @@
 """
-A Tileset Provider typically follows the following conventions:
+A Raster Tileset Provider typically follows the following conventions:
     * Tiles are 256 × 256 pixel PNG files
     * Each zoom level is a directory, each column is a subdirectory, and
         each tile in that column is a file
@@ -49,8 +49,108 @@ usagewarning(provider::AbstractProvider) =
            "setting up your own tile server instead. For details, ",
            "please see https://switch2osm.org/serving-tiles/.")
 
-fetchtile(provider::AbstractProvider, x::Integer, y::Integer, z::Integer) =
-        ImageMagick.readblob(Requests.get(geturl(provider,x,y,z)).data)
+function request(
+        provider::AbstractProvider,
+        x::Integer,
+        y::Integer,
+        z::Integer
+    )
+    url = geturl(provider,x,y,z)
+    result = Requests.get(url); status = 
+    Logging.info("Requesting $url (status: $(Requests.statuscode(result)))")
+    result.data
+end
+
+function fetchrastertile(
+        provider::AbstractProvider,
+        x::Integer,
+        y::Integer,
+        z::Integer
+    )
+    data = request(provider, x, y, z)
+    ImageMagick.readblob(data)
+end
+
+function fetchvectortile(
+        provider::AbstractProvider,
+        x::Integer,
+        y::Integer,
+        z::Integer
+    )
+    data = request(provider, x, y, z)
+    ProtoBuf.readproto(IOBuffer(data), MapTiles.vector_tile.Tile())
+end
+
+"""
+```
+struct GBIFProvider <: AbstractProvider
+    maxtiles::Int = typemax(Int)
+    epsg::Int = 3857
+    tileset::String = "omt"
+    format::String = "pbf"
+end
+```
+
+GBIF hosts map tiles in four projections, for use on GBIF.org and by users of
+our API. We serve vector tiles based on the OpenMapTiles.org schema, and from
+these generate raster tiles in several styles. Both the vector and raster tiles
+are available for public use.
+
+## Data schema and sources
+
+The Web Mercator tiles are simply those from OpenMapTiles.org, see the
+OpenMapTiles schema for details. The other projections have been generated to
+fit the same layer schema, but with fewer layers — see https://tile.gbif.org/ui/
+for details.
+
+* Web Mercator tiles are from 2017-07-03.
+* The other projections use OpenStreetMap and Natural Earth data. We do not plan
+    to make frequent updates to the tiles, since the geological features of most
+    interest to us do not often change.
+* WGS84 tiles are from OpenStreetMap as of 2017-08-28, and Natural Earth version
+    2.0.0.
+* Polar tiles are from OpenStreetMap as of 2017-02-27, and Natural Earth version
+    2.0.0. (They will soon be processed to add extra layers.)
+
+## Vector Tiles
+
+The schema for the vector tile layers follows the OpenMapTiles schema, but with
+fewer layers included for the non-Mercator projections. In addition, the Arctic
+LAEA projection includes a graticule layer, containing a polygon for the
+Northern Hemisphere and lines for 60°N and the Arctic Circle.
+
+## Format
+
+* `format`: Either `.pbf` for a vector tile, or `@1x.png`, ..., `@4x.png` for
+    PNG tiles at various pixel densities. Use higher pixel densities for high
+    resolution screens, otherwise the tiles will appear fuzzy.
+* `params`: Only for PNG tiles, specify a style e.g. `?style=gbif-classic`
+
+## Feedback and issues
+
+The process used by GBIF to generate the tiles in the three other projections
+is on GitHub. Please log issues there, or use the GBIF API Users mailing list.
+
+## Credits and copyright
+
+* OpenStreetMap and Natural Earth for the map data,
+* OpenMapTiles for the cartography and processing to produce vector tiles,
+* OpenLayers for good support of non-Mercator projections.
+* Base map tiles are © OpenMapTiles © OpenStreetMap contributors, and use
+    Natural Earth data.
+
+## References
+https://tile.gbif.org/
+https://www.gbif.org/developer/maps
+"""
+Parameters.@with_kw struct GBIFProvider <: AbstractProvider
+    maxtiles::Int = typemax(Int)
+    epsg::Int = 3857
+    tileset::String = "omt"
+    format::String = "pbf"
+end
+geturl(p::GBIFProvider, x::Integer, y::Integer, z::Integer) =
+    "https://tile.gbif.org/$(p.epsg)/$(p.tileset)/$z/$x/$y.$(p.format)"
 
 """
 ```
