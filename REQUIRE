@@ -3,3 +3,7 @@ Requests
 ImageMagick
 ProgressMeter
 GeoInterface
+Logging
+RecipesBase
+Parameters
+ProtoBuf
