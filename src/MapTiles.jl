@@ -10,11 +10,16 @@ module MapTiles
         img::Matrix{T}
         zoom::Int
         xmin::Int
+        xmax::Int
         ymin::Int
+        ymax::Int
         tilesize::Tuple{Int,Int}
     end
 
     RecipesBase.@recipe function f(basemap::BaseMap)
+        szx, szy = basemap.tilesize
+        xlim --> (0, szx * (1 + basemap.xmax - basemap.xmin))
+        ylim --> (0, szy * (1 + basemap.ymax - basemap.ymin))
         ticks --> nothing
         grid --> false
         aspect_ratio --> 1
@@ -64,52 +69,111 @@ module MapTiles
         Logging.info("Requesting ", sx, " x ", sy, " tiles")
         ProgressMeter.@showprogress for x in xmin:xmax, y in ymin:ymax
             px = tilesizex * (x - xmin); py = tilesizey * (y - ymin)
-            img[1+(py:(py+tilesizey-1)), 1+(px:(px+tilesizex-1))] =
+            img[py+(1:tilesizey), px+(1:tilesizex)] =
                 fetchrastertile(provider, x, y, z)
         end
-        BaseMap(img, z, min(xmin, xmax), min(ymin, ymax), (tilesizey, tilesizex))
+        BaseMap(img, z,
+            min(xmin, xmax), max(xmin, xmax),
+            min(ymin, ymax), max(ymin, ymax),
+            (tilesizey, tilesizex)
+        )
     end
 
-    function project(basemap::BaseMap, geom::GeoInterface.AbstractPoint)
+    function project(
+            ::Type{GeoInterface.Point},
+            basemap::BaseMap,
+            geom::GeoInterface.AbstractGeometry
+        )
         lon,lat = GeoInterface.coordinates(geom)
         GeoInterface.Point(collect(lonlat2tile(basemap,lon,lat)))
     end
 
-    function project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPoint)
+    function project(
+            ::Type{GeoInterface.MultiPoint},
+            basemap::BaseMap,
+            geom::GeoInterface.AbstractGeometry
+        )
         GeoInterface.MultiPoint([
             collect(lonlat2tile(basemap,lon,lat))
             for (lon,lat) in GeoInterface.coordinates(geom)
         ])
     end
 
-    function project(basemap::BaseMap, geom::GeoInterface.AbstractLineString)
+    function project(
+            ::Type{GeoInterface.LineString},
+            basemap::BaseMap,
+            geom::GeoInterface.AbstractGeometry
+        )
         GeoInterface.LineString([
             collect(lonlat2tile(basemap,lon,lat))
             for (lon,lat) in GeoInterface.coordinates(geom)
         ])
     end
 
-    function project(basemap::BaseMap, geom::GeoInterface.AbstractMultiLineString)
+    function project(
+            ::Type{GeoInterface.MultiLineString},
+            basemap::BaseMap,
+            geom::GeoInterface.AbstractGeometry
+        )
         GeoInterface.MultiLineString([
             [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in line]
             for line in GeoInterface.coordinates(geom)
         ])
     end
 
-    function project(basemap::BaseMap, geom::GeoInterface.AbstractPolygon)
+    function project(
+            ::Type{GeoInterface.Polygon},
+            basemap::BaseMap,
+            geom::GeoInterface.AbstractGeometry
+        )
         GeoInterface.Polygon([
             [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in ring]
             for ring in GeoInterface.coordinates(geom)
         ])
     end
 
-    function project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPolygon)
+    function project(
+            ::Type{GeoInterface.MultiPolygon},
+            basemap::BaseMap,
+            geom::GeoInterface.AbstractGeometry
+        )
         GeoInterface.MultiPolygon([[
                 [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in ring]
                 for ring in poly
             ]
             for poly in GeoInterface.coordinates(geom)
         ])
+    end
+
+    project(basemap::BaseMap, geom::GeoInterface.AbstractPoint) = 
+        project(GeoInterface.Point, basemap, geom)
+    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPoint) = 
+        project(GeoInterface.MultiPoint, basemap, geom)
+    project(basemap::BaseMap, geom::GeoInterface.AbstractLineString) = 
+        project(GeoInterface.LineString, basemap, geom)
+    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiLineString) = 
+        project(GeoInterface.MultiLineString, basemap, geom)
+    project(basemap::BaseMap, geom::GeoInterface.AbstractPolygon) = 
+        project(GeoInterface.Polygon, basemap, geom)
+    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPolygon) = 
+        project(GeoInterface.MultiPolygon, basemap, geom)
+
+    function project(basemap::BaseMap, geom::GeoInterface.AbstractGeometry)
+        gtype = GeoInterface.geotype(geom)
+        if gtype == :Point
+            return project(GeoInterface.Point, basemap, geom)
+        elseif gtype == :MultiPoint
+            return project(GeoInterface.MultiPoint, basemap, geom)
+        elseif gtype == :LineString
+            return project(GeoInterface.LineString, basemap, geom)
+        elseif gtype == :MultiLineString
+            return project(GeoInterface.MultiLineString, basemap, geom)
+        elseif gtype == :Polygon
+            return project(GeoInterface.Polygon, basemap, geom)
+        else
+            @assert gtype == :MultiPolygon
+            return project(GeoInterface.MultiPolygon, basemap, geom)
+        end
     end
 
 end
