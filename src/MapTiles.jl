@@ -1,10 +1,10 @@
 module MapTiles
 
     import Logging, Parameters, ProgressMeter
-    import Requests, ImageMagick, ProtoBuf
+    import HTTP, ImageMagick, ProtoBuf
     import RecipesBase, GeoInterface
 
-    include("protobuf/2.1/vector_tile.jl")
+    # include("protobuf/2.1/vector_tile.jl")
 
     mutable struct BaseMap{T}
         img::Matrix{T}
@@ -48,10 +48,10 @@ module MapTiles
             xmin, ymin, xmax, ymax = correctbox(xmin, ymin, xmax, ymax, z)
             sx, sy = boxsize(provider, xmin, ymin, xmax, ymax)
         end
-        Logging.info("Setting zoom to ", z)
-        Logging.info("Converting bounding latlon to tiles: ",
+        Logging.@info(string("Setting zoom to ", z))
+        Logging.@info(string("Converting bounding latlon to tiles: ",
             xmin, ",", ymin, ",", xmax, ",", ymax, " (xmin,ymin,xmax,ymax)"
-        )
+        ))
         fetchtiles(xmin, ymin, xmax, ymax, z, maxtiles=maxtiles, provider=provider)
     end
 
@@ -64,9 +64,9 @@ module MapTiles
         tmptile = fetchrastertile(provider, xmin, ymin, z) # fetch a tile for metadata
         T = eltype(tmptile)
         tilesizey, tilesizex = size(tmptile)
-        Logging.info("Tiles: Matrix{",T,"}(", tilesizey, ",", tilesizex, ")")
+        Logging.@info(string("Tiles: Matrix{",T,"}(", tilesizey, ",", tilesizex, ")"))
         img = Matrix{T}(sy*tilesizey, sx*tilesizex)
-        Logging.info("Requesting ", sx, " x ", sy, " tiles")
+        Logging.@info(string("Requesting ", sx, " x ", sy, " tiles"))
         ProgressMeter.@showprogress for x in xmin:xmax, y in ymin:ymax
             px = tilesizex * (x - xmin); py = tilesizey * (y - ymin)
             img[py+(1:tilesizey), px+(1:tilesizex)] =

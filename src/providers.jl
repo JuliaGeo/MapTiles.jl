@@ -56,9 +56,9 @@ function request(
         z::Integer
     )
     url = geturl(provider,x,y,z)
-    result = Requests.get(url)
-    Logging.info("Requesting $url (status: $(Requests.statuscode(result)))")
-    result.data
+    result = HTTP.request("GET", url)
+    Logging.info("Requesting $url (status: $(result.status))")
+    result.body
 end
 
 function fetchrastertile(
