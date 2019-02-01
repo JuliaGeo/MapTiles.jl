@@ -57,7 +57,7 @@ function request(
     )
     url = geturl(provider,x,y,z)
     result = HTTP.request("GET", url)
-    Logging.info("Requesting $url (status: $(result.status))")
+    Logging.@info("Requesting $url (status: $(result.status))")
     result.body
 end
 
