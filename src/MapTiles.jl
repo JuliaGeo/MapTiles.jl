@@ -65,7 +65,7 @@ module MapTiles
         T = eltype(tmptile)
         tilesizey, tilesizex = size(tmptile)
         Logging.@info(string("Tiles: Matrix{",T,"}(", tilesizey, ",", tilesizex, ")"))
-        img = Matrix{T}(sy*tilesizey, sx*tilesizex)
+        img = Matrix{T}(undef, sy*tilesizey, sx*tilesizex)
         Logging.@info(string("Requesting ", sx, " x ", sy, " tiles"))
         ProgressMeter.@showprogress for x in xmin:xmax, y in ymin:ymax
             px = tilesizex * (x - xmin); py = tilesizey * (y - ymin)
