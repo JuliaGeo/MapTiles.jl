@@ -69,7 +69,7 @@ module MapTiles
         Logging.@info(string("Requesting ", sx, " x ", sy, " tiles"))
         ProgressMeter.@showprogress for x in xmin:xmax, y in ymin:ymax
             px = tilesizex * (x - xmin); py = tilesizey * (y - ymin)
-            img[py+(1:tilesizey), px+(1:tilesizex)] =
+            img[py .+ (1:tilesizey), px .+ (1:tilesizex)] =
                 fetchrastertile(provider, x, y, z)
         end
         BaseMap(img, z,
