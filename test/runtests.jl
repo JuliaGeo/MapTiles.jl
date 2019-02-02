@@ -1,5 +1,5 @@
 using MapTiles
-using Base.Test
+using Test
 
 @testset "Raster Base Maps" begin
     basemap = MapTiles.fetchmap(
