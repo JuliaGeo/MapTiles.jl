@@ -19,13 +19,13 @@ julia> ]
 ## Display map
 ### Display map from buildin mapsource providers
 ```julia
-julia> using MapTiles
-julia> using Plots
-julia> provider = MapTiles.OpenStreetMapProvider()
-julia> minlon, minlat, maxlon, maxlat = -0.4, 46.2, 1.0, 46.9
-julia> minlon, minlat, maxlon, maxlat = -11.250, 40.984, 16.853, 52.483
-julia> basemap  = MapTiles.fetchmap(minlon, minlat, maxlon, maxlat, provider=provider)
-julia> plot(basemap)
+using MapTiles
+using Plots
+provider = MapTiles.OpenStreetMapProvider()
+minlon, minlat, maxlon, maxlat = -0.4, 46.2, 1.0, 46.9
+minlon, minlat, maxlon, maxlat = -11.250, 40.984, 16.853, 52.483
+basemap  = MapTiles.fetchmap(minlon, minlat, maxlon, maxlat, provider=provider)
+plot(basemap)
 ```
 
 It's possible to list all existing map providers using `subtypes(MapTiles.AbstractProvider)`.
