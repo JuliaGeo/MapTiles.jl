@@ -18,8 +18,8 @@ module MapTiles
 
     RecipesBase.@recipe function f(basemap::BaseMap)
         szx, szy = basemap.tilesize
-        xlim --> (0, szx * (1 + basemap.xmax - basemap.xmin))
-        ylim --> (0, szy * (1 + basemap.ymax - basemap.ymin))
+        xlims --> (0, szx * (1 + basemap.xmax - basemap.xmin))
+        ylims --> (0, szy * (1 + basemap.ymax - basemap.ymin))
         ticks --> nothing
         grid --> false
         aspect_ratio --> 1
