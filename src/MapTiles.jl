@@ -80,18 +80,18 @@ module MapTiles
     end
 
     function project(
-            ::Type{GeoInterface.Point},
+            ::Type{GeoInterface.PointTrait},
             basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometry
+            geom::GeoInterface.AbstractGeometryTrait
         )
         lon,lat = GeoInterface.coordinates(geom)
-        GeoInterface.Point(collect(lonlat2tile(basemap,lon,lat)))
+        GeoInterface.PointTrait(collect(lonlat2tile(basemap,lon,lat)))
     end
 
     function project(
-            ::Type{GeoInterface.MultiPoint},
+            ::Type{GeoInterface.MultiPointTrait},
             basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometry
+            geom::GeoInterface.AbstractGeometryTrait
         )
         GeoInterface.MultiPoint([
             collect(lonlat2tile(basemap,lon,lat))
@@ -100,9 +100,9 @@ module MapTiles
     end
 
     function project(
-            ::Type{GeoInterface.LineString},
+            ::Type{GeoInterface.LineStringTrait},
             basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometry
+            geom::GeoInterface.AbstractGeometryTrait
         )
         GeoInterface.LineString([
             collect(lonlat2tile(basemap,lon,lat))
@@ -111,9 +111,9 @@ module MapTiles
     end
 
     function project(
-            ::Type{GeoInterface.MultiLineString},
+            ::Type{GeoInterface.MultiLineStringTrait},
             basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometry
+            geom::GeoInterface.AbstractGeometryTrait
         )
         GeoInterface.MultiLineString([
             [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in line]
@@ -122,9 +122,9 @@ module MapTiles
     end
 
     function project(
-            ::Type{GeoInterface.Polygon},
+            ::Type{GeoInterface.PolygonTrait},
             basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometry
+            geom::GeoInterface.AbstractGeometryTrait
         )
         GeoInterface.Polygon([
             [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in ring]
@@ -133,9 +133,9 @@ module MapTiles
     end
 
     function project(
-            ::Type{GeoInterface.MultiPolygon},
+            ::Type{GeoInterface.MultiPolygonTrait},
             basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometry
+            geom::GeoInterface.AbstractGeometryTrait
         )
         GeoInterface.MultiPolygon([[
                 [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in ring]
@@ -145,20 +145,20 @@ module MapTiles
         ])
     end
 
-    project(basemap::BaseMap, geom::GeoInterface.AbstractPoint) = 
+    project(basemap::BaseMap, geom::GeoInterface.AbstractPointTrait) = 
         project(GeoInterface.Point, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPoint) = 
+    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPointTrait) = 
         project(GeoInterface.MultiPoint, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractLineString) = 
+    project(basemap::BaseMap, geom::GeoInterface.AbstractLineStringTrait) = 
         project(GeoInterface.LineString, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiLineString) = 
+    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiLineStringTrait) = 
         project(GeoInterface.MultiLineString, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractPolygon) = 
+    project(basemap::BaseMap, geom::GeoInterface.AbstractPolygonTrait) = 
         project(GeoInterface.Polygon, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPolygon) = 
+    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPolygonTrait) = 
         project(GeoInterface.MultiPolygon, basemap, geom)
 
-    function project(basemap::BaseMap, geom::GeoInterface.AbstractGeometry)
+    function project(basemap::BaseMap, geom::GeoInterface.AbstractGeometryTrait)
         gtype = GeoInterface.geotype(geom)
         if gtype == :Point
             return project(GeoInterface.Point, basemap, geom)
