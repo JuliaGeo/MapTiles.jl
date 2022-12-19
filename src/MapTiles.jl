@@ -137,7 +137,7 @@ module MapTiles
             basemap::BaseMap,
             geom::GeoInterface.AbstractGeometryTrait
         )
-        GeoInterface.MultiPolygon([[
+        GeoInterface.MultiPolygonTrait([[
                 [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in ring]
                 for ring in poly
             ]
@@ -146,33 +146,33 @@ module MapTiles
     end
 
     project(basemap::BaseMap, geom::GeoInterface.AbstractPointTrait) = 
-        project(GeoInterface.Point, basemap, geom)
+        project(GeoInterface.PointTrait, basemap, geom)
     project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPointTrait) = 
-        project(GeoInterface.MultiPoint, basemap, geom)
+        project(GeoInterface.MultiPointTrait, basemap, geom)
     project(basemap::BaseMap, geom::GeoInterface.AbstractLineStringTrait) = 
-        project(GeoInterface.LineString, basemap, geom)
+        project(GeoInterface.LineStringTrait, basemap, geom)
     project(basemap::BaseMap, geom::GeoInterface.AbstractMultiLineStringTrait) = 
-        project(GeoInterface.MultiLineString, basemap, geom)
+        project(GeoInterface.MultiLineStringTrait, basemap, geom)
     project(basemap::BaseMap, geom::GeoInterface.AbstractPolygonTrait) = 
-        project(GeoInterface.Polygon, basemap, geom)
+        project(GeoInterface.PolygonTrait, basemap, geom)
     project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPolygonTrait) = 
-        project(GeoInterface.MultiPolygon, basemap, geom)
+        project(GeoInterface.MultiPolygonTrait, basemap, geom)
 
     function project(basemap::BaseMap, geom::GeoInterface.AbstractGeometryTrait)
-        gtype = GeoInterface.geotype(geom)
+        gtype = GeoInterface.geomtrait(geom)
         if gtype == :Point
-            return project(GeoInterface.Point, basemap, geom)
+            return project(GeoInterface.PointTrait, basemap, geom)
         elseif gtype == :MultiPoint
-            return project(GeoInterface.MultiPoint, basemap, geom)
+            return project(GeoInterface.MultiPointTrait, basemap, geom)
         elseif gtype == :LineString
-            return project(GeoInterface.LineString, basemap, geom)
+            return project(GeoInterface.LineStringTrait, basemap, geom)
         elseif gtype == :MultiLineString
-            return project(GeoInterface.MultiLineString, basemap, geom)
+            return project(GeoInterface.MultiLineStringTrait, basemap, geom)
         elseif gtype == :Polygon
-            return project(GeoInterface.Polygon, basemap, geom)
+            return project(GeoInterface.PolygonTrait, basemap, geom)
         else
             @assert gtype == :MultiPolygon
-            return project(GeoInterface.MultiPolygon, basemap, geom)
+            return project(GeoInterface.MultiPolygonTrait, basemap, geom)
         end
     end
 
