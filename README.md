@@ -65,6 +65,9 @@ basemap  = MapTiles.fetchmap(minlon, minlat, maxlon, maxlat, provider=provider)
 plot(basemap)
 ```
 
+## Other relevant Julia packages
+- [Leaflet.jl: integrates with WebIO.jl to render leaflet maps for outputs like Blink.jl, Mux.jl, and for Jupyter notebooks](https://github.com/JuliaGeo/Leaflet.jl)
+
 ## Packages in other Languages
 If you're coming from Python or R, you might be interested in the following packages instead:
 - [Smopy: OpenStreetMap Image Tiles in Python](https://github.com/rossant/smopy)
