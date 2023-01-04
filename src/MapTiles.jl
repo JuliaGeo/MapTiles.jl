@@ -2,7 +2,7 @@ module MapTiles
 
     import Logging, Parameters, ProgressMeter
     import HTTP, ImageMagick, ProtoBuf
-    import RecipesBase, GeoInterface
+    import RecipesBase
 
     # include("protobuf/2.1/vector_tile.jl")
 
@@ -78,102 +78,4 @@ module MapTiles
             (tilesizey, tilesizex)
         )
     end
-
-    function project(
-            ::Type{GeoInterface.PointTrait},
-            basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometryTrait
-        )
-        lon,lat = GeoInterface.coordinates(geom)
-        GeoInterface.PointTrait(collect(lonlat2tile(basemap,lon,lat)))
-    end
-
-    function project(
-            ::Type{GeoInterface.MultiPointTrait},
-            basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometryTrait
-        )
-        GeoInterface.MultiPoint([
-            collect(lonlat2tile(basemap,lon,lat))
-            for (lon,lat) in GeoInterface.coordinates(geom)
-        ])
-    end
-
-    function project(
-            ::Type{GeoInterface.LineStringTrait},
-            basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometryTrait
-        )
-        GeoInterface.LineString([
-            collect(lonlat2tile(basemap,lon,lat))
-            for (lon,lat) in GeoInterface.coordinates(geom)
-        ])
-    end
-
-    function project(
-            ::Type{GeoInterface.MultiLineStringTrait},
-            basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometryTrait
-        )
-        GeoInterface.MultiLineString([
-            [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in line]
-            for line in GeoInterface.coordinates(geom)
-        ])
-    end
-
-    function project(
-            ::Type{GeoInterface.PolygonTrait},
-            basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometryTrait
-        )
-        GeoInterface.Polygon([
-            [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in ring]
-            for ring in GeoInterface.coordinates(geom)
-        ])
-    end
-
-    function project(
-            ::Type{GeoInterface.MultiPolygonTrait},
-            basemap::BaseMap,
-            geom::GeoInterface.AbstractGeometryTrait
-        )
-        GeoInterface.MultiPolygonTrait([[
-                [collect(lonlat2tile(basemap,lon,lat)) for (lon,lat) in ring]
-                for ring in poly
-            ]
-            for poly in GeoInterface.coordinates(geom)
-        ])
-    end
-
-    project(basemap::BaseMap, geom::GeoInterface.AbstractPointTrait) = 
-        project(GeoInterface.PointTrait, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPointTrait) = 
-        project(GeoInterface.MultiPointTrait, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractLineStringTrait) = 
-        project(GeoInterface.LineStringTrait, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiLineStringTrait) = 
-        project(GeoInterface.MultiLineStringTrait, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractPolygonTrait) = 
-        project(GeoInterface.PolygonTrait, basemap, geom)
-    project(basemap::BaseMap, geom::GeoInterface.AbstractMultiPolygonTrait) = 
-        project(GeoInterface.MultiPolygonTrait, basemap, geom)
-
-    function project(basemap::BaseMap, geom::GeoInterface.AbstractGeometryTrait)
-        gtype = GeoInterface.geomtrait(geom)
-        if gtype == :Point
-            return project(GeoInterface.PointTrait, basemap, geom)
-        elseif gtype == :MultiPoint
-            return project(GeoInterface.MultiPointTrait, basemap, geom)
-        elseif gtype == :LineString
-            return project(GeoInterface.LineStringTrait, basemap, geom)
-        elseif gtype == :MultiLineString
-            return project(GeoInterface.MultiLineStringTrait, basemap, geom)
-        elseif gtype == :Polygon
-            return project(GeoInterface.PolygonTrait, basemap, geom)
-        else
-            @assert gtype == :MultiPolygon
-            return project(GeoInterface.MultiPolygonTrait, basemap, geom)
-        end
-    end
-
 end
