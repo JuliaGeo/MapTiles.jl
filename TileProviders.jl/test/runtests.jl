@@ -22,4 +22,7 @@ using Test
         TileProviders.NASAGIBS(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07)),
         TileProviders.Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
     )
+    provider = TileProviders.OSM()
+
+    TileProviders.interpolate_url(provider, 1, 2, 3)
 end

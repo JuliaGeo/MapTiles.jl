@@ -2,7 +2,8 @@ module TileProviders
 
 using Dates
 
-include("providers.jl")
+include("provider.jl")
+include("provider_library.jl")
 include("nasagibs.jl")
 
 end
