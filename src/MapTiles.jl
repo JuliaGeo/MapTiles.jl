@@ -2,7 +2,7 @@ module MapTiles
 
     import Logging, Parameters, ProgressMeter
     import HTTP, ImageMagick, ProtoBuf
-    import RecipesBase, GeoInterface
+    import RecipesBase
 
     # include("protobuf/2.1/vector_tile.jl")
 
