@@ -53,7 +53,7 @@ function request(
         provider::AbstractProvider,
         x::Integer,
         y::Integer,
-        z::Integer
+        z::Integer,
     )
     url = geturl(provider,x,y,z)
     result = HTTP.request("GET", url)
