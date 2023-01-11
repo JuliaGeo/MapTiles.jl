@@ -57,7 +57,6 @@ function request(
     )
     url = geturl(provider,x,y,z)
     result = HTTP.request("GET", url)
-    Logging.@info("Requesting $url (status: $(result.status))")
     result.body
 end
 
@@ -143,7 +142,7 @@ is on GitHub. Please log issues there, or use the GBIF API Users mailing list.
 https://tile.gbif.org/
 https://www.gbif.org/developer/maps
 """
-Parameters.@with_kw struct GBIFProvider <: AbstractProvider
+@kwdef struct GBIFProvider <: AbstractProvider
     maxtiles::Int = typemax(Int)
     epsg::Int = 3857
     tileset::String = "omt"
@@ -186,7 +185,7 @@ See
     * http://wiki.openstreetmap.org/wiki/Tile_servers
 for details.
 """
-Parameters.@with_kw struct OpenStreetMapProvider <: AbstractProvider
+@kwdef struct OpenStreetMapProvider <: AbstractProvider
     variant::String = "standard"
     maxtiles::Int = 16
 end
@@ -250,7 +249,7 @@ https://www.openstreetmap.org/fixthemap
 ## References
 See https://www.mediawiki.org/wiki/Maps for details.
 """
-Parameters.@with_kw struct WikimediaMapsProvider <: AbstractProvider
+@kwdef struct WikimediaMapsProvider <: AbstractProvider
     maxtiles::Int = typemax(Int)
 end
 geturl(provider::WikimediaMapsProvider, x::Integer, y::Integer, z::Integer) =
@@ -290,7 +289,7 @@ about OpenCycleMap can be found in the OpenStreetMap archives on my blog.
 ## References
 See https://www.opencyclemap.org/docs/ for further details.
 """
-Parameters.@with_kw struct OpenCycleMapProvider <: AbstractProvider
+@kwdef struct OpenCycleMapProvider <: AbstractProvider
     variant::String = "cycle"
     maxtiles::Int = typemax(Int)
 end
@@ -319,7 +318,7 @@ nautical data that is saved in the OSM-Database as well.
 Visit http://openseamap.org/index.php and http://wiki.openseamap.org/wiki/Main_Page
 for details.
 """
-Parameters.@with_kw struct OpenSeaMapProvider <: AbstractProvider
+@kwdef struct OpenSeaMapProvider <: AbstractProvider
     maxtiles::Int = typemax(Int)
 end
 geturl(provider::OpenSeaMapProvider, x::Integer, y::Integer, z::Integer) =
@@ -348,7 +347,7 @@ for more information.
 ## References
 Visit http://wiki.openstreetmap.org/wiki/OpenTopoMap for further details.
 """
-Parameters.@with_kw struct OpenTopoMapProvider <: AbstractProvider
+@kwdef struct OpenTopoMapProvider <: AbstractProvider
     maxtiles::Int = typemax(Int)
 end
 geturl(provider::OpenTopoMapProvider, x::Integer, y::Integer, z::Integer) =
@@ -393,7 +392,7 @@ forecasts, require a paid subscription.
 ## References
 For further details, visit https://openweathermap.org/.
 """
-Parameters.@with_kw struct OpenWeatherMapProvider <: AbstractProvider
+@kwdef struct OpenWeatherMapProvider <: AbstractProvider
     apikey::String
     variant::String = "clouds"
     maxtiles::Int = typemax(Int)
@@ -441,7 +440,7 @@ media, then you can provide attribution as follows:
 For further details, visit https://www.thunderforest.com/docs/map-tiles-api/ and
 https://www.thunderforest.com/terms/.
 """
-Parameters.@with_kw struct ThunderForestProvider <: AbstractProvider
+@kwdef struct ThunderForestProvider <: AbstractProvider
     variant::String = "cycle"
     apikey::String
     maxtiles::Int = typemax(Int)
@@ -466,39 +465,39 @@ Research Group, Heidelberg University.
     * `"adminb"`
     * `"roadsg"`
 
-## Terms of Use 
+## Terms of Use
 Tiles that were rendered by this service can be used freely and without charge
-by any individuals through the website http://korona.geog.uni-heidelberg.de 
+by any individuals through the website http://korona.geog.uni-heidelberg.de
 
 If you intend to use tiles from OpenMapSurfer services in your own applications
 please contact them.
 
 Commercial usage of the services provided by OpenMapSurfer does need approval!
 
-OpenStreetMap data is available under the Open Database License. 
+OpenStreetMap data is available under the Open Database License.
 
 Relief shading derived from CIAT-CSI SRTM (zoom levels 0-7): Users are
 prohibited from any commercial, non-free resale, or redistribution without
-explicit written permission from CIAT. 
+explicit written permission from CIAT.
 
 Original data by Jarvis A., H.I. Reuter, A. Nelson, E. Guevara, 2008, Hole-filled
 seamless SRTM data V4, International Centre for Tropical Agriculture (CIAT),
-available from http://srtm.csi.cgiar.org. 
+available from http://srtm.csi.cgiar.org.
 
 Relief shading derived from ASTER GDEM (zoom levels 8-18): ASTER GDEM is a
-product of METI and NASA'. 
+product of METI and NASA'.
 
 Relief shading derived from ETOPO1 (zoom levels 0-4). Amante, C. and B. W. Eakins,
 ETOPO1 1 Arc-Minute Global Relief Model: Procedures, Data Sources and Analysis.
 NOAA Technical Memorandum NESDIS NGDC-24, 19 pp, March 2009.
 
 ## License
-Content is available under Creative Commons Attribution-ShareAlike 2.0 license. 
+Content is available under Creative Commons Attribution-ShareAlike 2.0 license.
 
 ## References
 For further details, visit http://wiki.openstreetmap.org/wiki/OpenMapSurfer.
 """
-Parameters.@with_kw struct OpenMapSurferProvider <: AbstractProvider
+@kwdef struct OpenMapSurferProvider <: AbstractProvider
     variant::String = "roads"
     maxtiles::Int = typemax(Int)
 end
@@ -523,7 +522,7 @@ I have to ask https://github.com/joakimfors and https://github.com/kodapan what 
 Please visit http://openstreetmap.se/tjanster and
 https://github.com/osmlab/editor-layer-index/issues/347 for further details.
 """
-Parameters.@with_kw struct HyddaProvider <: AbstractProvider
+@kwdef struct HyddaProvider <: AbstractProvider
     variant::String = "full"
     maxtiles::Int = typemax(Int)
 end
@@ -569,7 +568,7 @@ token: you will need to supply one by specifying the token.
 ## References
 For further details, visit https://www.mapbox.com/api-documentation/.
 """
-Parameters.@with_kw struct MapBoxProvider <: AbstractProvider
+@kwdef struct MapBoxProvider <: AbstractProvider
     accesstoken::String
     id::String = "streets"
     maxtiles::Int = typemax(Int)
@@ -617,7 +616,7 @@ Creative Commons Attribution (CC BY 3.0) license.
 ## References
 For further details, visit http://maps.stamen.com/.
 """
-Parameters.@with_kw struct StamenProvider <: AbstractProvider
+@kwdef struct StamenProvider <: AbstractProvider
     variant::String = "toner"
     maxtiles::Int = typemax(Int)
 end
@@ -654,7 +653,7 @@ https://drive.google.com/file/d/0B3OBExqwT6KJNHp3U3VUamx6U1U/view.
 For further details, visit https://carto.com/location-data-services/basemaps/ and
 https://carto.com/docs/faqs/basemaps/.
 """
-Parameters.@with_kw struct CARTOProvider <: AbstractProvider
+@kwdef struct CARTOProvider <: AbstractProvider
     variant::String = "light_all"
     maxtiles::Int = typemax(Int)
 end
@@ -688,7 +687,7 @@ Please abide by the terms in https://developers.google.com/maps/terms?hl=en#sect
 ## References
 For further details, visit https://developers.google.com/maps/documentation/static-maps/
 """
-Parameters.@with_kw struct GoogleMapsProvider <: AbstractProvider
+@kwdef struct GoogleMapsProvider <: AbstractProvider
     variant::String = ""
     maxtiles::Int = typemax(Int)
 end
@@ -775,7 +774,7 @@ The time parameter supports a single day (YYYY-MM-DD) or repeating interval
 Please visit https://wiki.earthdata.nasa.gov/display/GIBS/GIBS+API+for+Developers
 for further details.
 """
-Parameters.@with_kw struct NASAGIBSProvider <: AbstractProvider
+@kwdef struct NASAGIBSProvider <: AbstractProvider
     variant::String = "MODIS_Terra_CorrectedReflectance_TrueColor"
     time::String = ""
     tilematrixset::String = "GoogleMapsCompatible_Level"
@@ -817,7 +816,7 @@ Possible variants:
     * `NatGeo_World_Map`
     * `Canvas/World_Light_Gray_Base`
 """
-Parameters.@with_kw struct ESRIProvider <: AbstractProvider
+@kwdef struct ESRIProvider <: AbstractProvider
     variant::String = "World_Street_Map"
     maxtiles::Int = typemax(Int)
 end

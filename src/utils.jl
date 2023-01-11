@@ -35,11 +35,6 @@ function lonlat2tile(
     floor(Int,(x-xmin)*tilesizex)+1, floor(Int,(y-ymin)*tilesizey)+1
 end
 
-lonlat2tile(basemap::BaseMap, lon::Real, lat::Real) = lonlat2tile(
-    lon, lat, basemap.zoom, basemap.xmin, basemap.ymin,
-    basemap.tilesize[2], basemap.tilesize[1]
-)
-
 """
 Convert a box from geographical to tile coordinates (integers), at a given zoom.
 """

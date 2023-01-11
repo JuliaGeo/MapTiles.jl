@@ -3,13 +3,10 @@ uuid = "fea52e5a-b371-463b-85f5-81770daa2737"
 version = "0.1.0"
 
 [deps]
+Extents = "411431e0-e8b7-467b-b5e0-f676ba4f2910"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
-Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
-Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
-ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
-RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 
 [compat]
 julia = "1"
