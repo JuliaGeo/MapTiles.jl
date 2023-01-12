@@ -794,17 +794,18 @@ body!(w, m)
 
 $(_variant_list(_NASAGIBS_KEYS))
 """
-function NASAGIBS(variant::Symbol=:reflectance; date="2020-01-01")
+function NASAGIBSTimeseries(variant::Symbol=:reflectance; date="2020-01-01")
     _checkin(variant, _NASAGIBS_DICT)
     if date isa Dates.TimeType
         date = Dates.format(date, "yyyy-mm-dd")
     end
-    provider = Provider{:NASAGIBS}(
-        "https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/{variant}/default/{date}/GoogleMapsCompatible_Level{maxZoom}/{z}/{y}/{x}.{format}",
+    provider = Provider(
+        "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/{variant}/default/{date}/GoogleMapsCompatible_Level{max_zoom}/{z}/{y}/{x}.{format}",
         Dict(
+            :name => :NASAGIBSTimeseries,
             :bounds => [[-85.0511287776, -179.999999975], [85.0511287776, 179.999999975]],
-            :minZoom => 1,
-            :maxZoom => _NASAGIBS_DICT[variant].zoom,
+            :min_zoom => 1,
+            :max_zoom => _NASAGIBS_DICT[variant].zoom,
             :format => _NASAGIBS_DICT[variant].format,
             :date => _NASAGIBS_DICT[variant].date ? date : "",
             :variant => _NASAGIBS_DICT[variant].path,

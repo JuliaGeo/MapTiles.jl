@@ -1,28 +1,34 @@
 using TileProviders
 using Test
+using Dates
 
 @testset "TileProviders.jl run" begin
     providers = (
-        TileProviders.OSM(),
-        TileProviders.OSMFrance(),
-        TileProviders.OSMDE(),
+        TileProviders.OpenStreetMap() ,
+        TileProviders.OpenStreetMap(:France),
+        TileProviders.OpenStreetMap(:DE),
         TileProviders.OpenTopoMap(),
-        TileProviders.CARTO(:dark_nolabels),
+        TileProviders.CartoDB(:DarkMatter),
         TileProviders.Esri(),
         TileProviders.Stamen(),
-        TileProviders.Stamen(:watercolor),
-        TileProviders.CARTO(:dark_all),
+        TileProviders.Stamen(:Watercolor),
         TileProviders.Google(:hybrid),
-        TileProviders.MapBox(; tileset_id="username.id", access_token="sometoken"),
-        TileProviders.Jawg(; access_token="sometoken"),
+        TileProviders.Google(:roadmap),
+        TileProviders.MapBox(; accesstoken="sometoken"),
+        TileProviders.Jawg(; accesstoken="sometoken"),
         TileProviders.Thunderforest(; apikey="someapikey"),
-        TileProviders.OpenWeatherMap(:clouds; apikey="someapikey"),
-        TileProviders.OpenWeatherMap(:clouds; apikey="someapikey"),
-        TileProviders.NASAGIBS(:VIIRS_CityLights_2012),
-        TileProviders.NASAGIBS(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07)),
-        TileProviders.Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
+        TileProviders.OpenWeatherMap(:Clouds),
+        TileProviders.NASAGIBS(:ViirsEarthAtNight2012),
+        TileProviders.NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07)),
+        TileProviders.NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07)),
+        TileProviders.Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png") ,
     )
-    provider = TileProviders.OSM()
+    map(providers) do provider
+        TileProviders.geturl(provider, 1, 2, 3)
+    end
 
-    TileProviders.interpolate_url(provider, 1, 2, 3)
+    provider = TileProviders.OpenStreetMap()
+    @test TileProviders.geturl(provider, 1, 2, 3) == "https://tile.openstreetmap.org/3/1/2.png"
+    provider = TileProviders.NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
+    @test TileProviders.geturl(provider, 1, 2, 3) == "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/AMSRE_Brightness_Temp_89H_Day/default/2010-05-07/GoogleMapsCompatible_Level6/3/2/1.png"
 end

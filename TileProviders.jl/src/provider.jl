@@ -1,3 +1,4 @@
+abstract type AbstractProvider end
 
 """
     Provider
@@ -29,19 +30,19 @@ provider = Leaflet.Provider(url)
 w = Blink.Window()
 body!(w, Leaflet.Map(; provider, zoom=3, height=1000))
 """
-struct Provider
+struct Provider <: AbstractProvider
     url::String
     options::Dict{Symbol,Any}
 end
 function Provider(url::String;
-    name::Union{Symbol,Nothing}=nothing, maxzoom=18, attribution="",
+    name::Union{Symbol,Nothing}=nothing, max_zoom=18, attribution="", html_attribution=attribution,
 )
-    options = Dict{Symbol,Any}(:maxZoom => maxzoom, :attribution => attribution)
-    Provider{name}(url, options)
+    options = Dict{Symbol,Any}(:max_zoom => max_zoom, :attribution => attribution, :html_attribution => html_attribution)
+    Provider(url, options)
 end
 
-url(provider::Provider) = provider.url
-options(provider::Provider) = provider.options
+url(provider::AbstractProvider) = provider.url
+options(provider::AbstractProvider) = provider.options
 
 _variant_list(variants::NamedTuple) = _variant_list(keys(variants))
 _variant_list(variants) =
@@ -64,9 +65,10 @@ they will also be replaced.
 We follow the behaviour of Leaflet.js so their provider urls work without
 modification in `Provider`.
 """
-function geturl(provider::Provider, x::Integer, y::Integer, z::Integer)
+function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
     ops = options(provider)
-    z > ops[:maxZoom] && throw(ArgumentError("z is larger than maxZoom"))
+    max_zoom = get(ops, :max_zoom, 23)
+    z > max_zoom && throw(ArgumentError("z is larger than max_zoom"))
     replacements = [
         "{s}" => string(""), # TODO handle subdomains
         "{x}" => string(Int(x)), 
@@ -74,7 +76,7 @@ function geturl(provider::Provider, x::Integer, y::Integer, z::Integer)
         "{z}" => string(Int(z)), 
     ]
     foreach(keys(ops), values(ops)) do key, val
-        if !(key in (:attributes, :maxZoom))
+        if !(key in (:attributes, :html_attributes, :name))
             push!(replacements, string('{', key, '}') => string(val))
         end
     end
@@ -83,26 +85,23 @@ end
 
 function _handle_apikey(k, v) 
     hasapikey = map(values(v)) do d
-        _hasapikey!(d)
+        _hasapikey(d)
     end |> any
-    return hasapikey, _keyword_docs(hasapikey, k)
+    hasaccesstoken = map(values(v)) do d
+        _hasaccesstoken(d)
+    end |> any
+    return hasapikey, hasaccesstoken, _keyword_docs(hasapikey, hasaccesstoken, k)
 end
 
-function _hasapikey!(d)
-    if haskey(d, :apikey)
-        delete!(d, :apikey)
-        true
-    else
-        false
-    end
-end
+_hasapikey(d) = haskey(d, :apikey)
+_hasaccesstoken(d) = haskey(d, :accessToken)
 
-function _keyword_docs(hasapikey, k)
-    if hasapikey
+function _keyword_docs(hasapikey, hasaccesstoken, k)
+    if hasapikey || hasaccesstoken
         """
         ## Keywords
         
-        - `apikey`: Your API key for the $k service.
+        - `$(hasapikey ? "apikey" : "accesstoken") `: Your API key for the $k service.
         """
     else
         ""
@@ -114,64 +113,125 @@ end
 # by parsing them to Julia functions that generate a `Provider`
 let
     provider_file = joinpath(dirname(@__FILE__), "leaflet-providers-parsed.json")
-    provider_dict = copy(JSON3.read(read(provider_file)))
+    provider_dict = JSON3.read(read(provider_file))
     for (k, v) in provider_dict
-        @show k
         k == :_meta && continue
-        if first(values(v)) isa Dict 
-            hasapikey, keyword_docs = _handle_apikey(k, v)
+        if first(values(v)) isa JSON3.Object 
+            hasapikey, hasaccesstoken, keyword_docs = _handle_apikey(k, v)
+            keyword = hasapikey ? :apikey : (hasaccesstoken ? :accesstoken : Symbol(""))
             variants = keys(v)
-            @eval begin
-                docstring = let
-                    typ = $(QuoteNode(k))
-                    options = $v
-                    attribution = map(d -> d[:attribution], values(options)) |> first
-                    keyword_docs = $keyword_docs
-                    variants = $variants
-                    """
-                        $typ(variant)
-
-                    [`Provider`](@ref) for $typ tiles.
-
-                    $attribution
-
-                    Arguments
-
-                    - `variant`: $variants, with a default of $(first(variants)).
-
-                    $keyword_docs
-                    """
-                end
-                @doc docstring
-                function $k(variant::Symbol=$(QuoteNode(first(variants))))#; $(hasapikey ? :apikey : Symbol("")))
-                    options = $v
-                    variant in keys(options) || throw(ArgumentError("variant must be from $(keys(options)), got $variant"))
-                    Provider(options[variant][:url], options[variant])
-                end
-
-                export $k
+            contents = quote
+                provider_name = $k
+                options = $v
+                variant in keys(options) || throw(ArgumentError("$provider_name variant must be from $(keys(options)), got $variant"))
+                Provider(options[variant][:url], options[variant])
             end
-        else
-            # hasapikey, keyword_docs = _keyword_docs(_hasapikey!(v), k)
-            @eval begin
-                typ = $(QuoteNode(k))
-                attribution = $(v[:attribution])
-                # keyword_docs = $keyword_docs
+            # Generate the documentation
+            docstring = let
+                typ = QuoteNode(k)
+                options = v
+                attribution = map(d -> d[:attribution], values(options)) |> first
                 """
-                    $typ()
+                    $typ(variant)
 
                 [`Provider`](@ref) for $typ tiles.
 
                 $attribution
 
-                """
-                function $k() 
-                    options = $v
-                    Provider(options[:url], options)
-                end
+                # Arguments
 
-                export $k
+                - `variant`: $variants, with a default of $(first(variants)).
+
+                $keyword_docs
+                """
+            end 
+
+            # Generate the function
+            if hasapikey || hasaccesstoken
+                @eval begin
+                    @doc $docstring
+                    function $k(variant::Symbol=$(QuoteNode(first(variants))); $keyword)
+                        $contents
+                    end
+                end
+            else
+                @eval begin
+                    @doc $docstring
+                    function $k(variant::Symbol=$(QuoteNode(first(variants))))
+                        $contents
+                    end
+                end
+            end
+
+        else
+            hasapikey = _hasapikey(v)
+            hasaccesstoken = _hasaccesstoken(v)
+            keyword_docs = _keyword_docs(hasapikey, hasaccesstoken, v)
+            keyword = hasapikey ? :apikey : (hasaccesstoken ? :accesstoken : Symbol(""))
+            contents = quote
+                options = $v
+                Provider(options[:url], options)
+            end
+            # Generate the documentation
+            docstring = let
+                typ = QuoteNode(k)
+                attribution = v[:attribution]
+                """
+                    $typ(variant)
+
+                [`Provider`](@ref) for $typ tiles.
+
+                $attribution
+
+                # Arguments
+
+                $keyword_docs
+                """
+            end 
+
+            # Generate the function
+            if hasapikey || hasaccesstoken
+                @eval begin
+                    @doc $docstring
+                    function $k(; $keyword)
+                        $contents
+                    end
+                end
+            else
+                @eval begin
+                    @doc $docstring
+                    function $k()
+                        $contents
+                    end
+                end
             end
         end
+        @eval export $k
     end
+end
+
+
+# Google is not included above
+
+const _GOOGLE_VARIANTS = (satelite="s", roadmap="m", terrain="p", hybrid="y")
+
+"""
+    Google()
+
+[`Provider`](@ref) for base layers from Google maps.
+
+# Arguments
+
+- `variant`: $(keys(_GOOGLE_VARIANTS)), with a default of $first(keys(_GOOGLE_VARIANTS))).
+"""
+function Google(variant=:satelite)
+    _checkin(variant, _GOOGLE_VARIANTS)
+    Provider(
+        "https://mt1.google.com/vt/lyrs={variant}&x={x}&y={y}&z={z}",
+        Dict(
+            :max_zoom => 20,
+            :attribution => "Google",
+            :variant => _GOOGLE_VARIANTS[variant],
+        )
+    )
 end

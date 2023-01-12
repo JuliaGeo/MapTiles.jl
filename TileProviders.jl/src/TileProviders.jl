@@ -10,7 +10,6 @@ export CARTO, Esri, Google, Jawg, MapBox, OSM, OSMDE, OSMFrance, OSMHumanitarian
 export interpolate_url
 
 include("provider.jl")
-# include("provider_library.jl")
-# include("nasagibs.jl")
+include("nasagibs.jl")
 
 end
