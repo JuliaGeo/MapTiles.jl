@@ -8,9 +8,9 @@ using GeoFormatTypes: GeoFormatTypes, CoordinateReferenceSystemFormat
 
 import TileProviders as Providers
 
-using TileProviders: geturl
+using TileProviders: geturl, AbstractProvider, Provider
 
-export Tile, TileGrid
+export Tile, TileGrid, geturl
 
 include("tiles.jl")
 
