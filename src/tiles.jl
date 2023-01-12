@@ -57,6 +57,13 @@ function project(point, from::WGS84, to::WebMercator)
     return x, y
 end
 
+function project(bbox::Extent, from, to)
+    left, bottom = MT.project((bbox.X[1], bbox.Y[1]), from, to)
+    right, top = MT.project((bbox.X[2], bbox.Y[2]), from, to)
+
+    return Extent(X=(left, right), Y=(bottom, top))
+end
+
 const web_mercator = WebMercator()
 const wgs84 = WGS84()
 
@@ -106,6 +113,30 @@ end
 
 TileGrid(tile::Tile) = TileGrid(CartesianIndices((tile.x:tile.x, tile.y:tile.y)), tile.z)
 
+"Get the tiles overlapped by a geographic bounding box"
+function TileGrid(bbox::Extent, zoom::Int, crs::WGS84)
+    # Mercantile splits the bbox in two along the antimeridian if this happens.
+    # Decide if that case should be handled here or before, also considering
+    # antimeridian discussion in https://github.com/rafaqz/Extents.jl/issues/4
+    @assert bbox.X[1] < bbox.X[2]
+
+    # Clamp bounding values.
+    max_bbox = Extent(X = (-180.0, 180.0), Y = (-85.051129, 85.051129))
+    bbox = Extents.intersect(bbox, max_bbox)
+
+    ul_tile = Tile((bbox.X[1], bbox.Y[1]), zoom, crs)
+    lr_tile = Tile((bbox.X[2] - LL_EPSILON, bbox.Y[2] + LL_EPSILON), zoom, crs)
+
+    grid = CartesianIndices((ul_tile.x:lr_tile.x, lr_tile.y:ul_tile.y))
+    return TileGrid(grid, zoom)
+end
+
+"Get the tiles overlapped by a web mercator bounding box"
+function TileGrid(bbox::Extent, zoom::Int, crs::WebMercator)
+    bbox = project(bbox, crs, wgs84)
+    return TileGrid(bbox, zoom, wgs84)
+end
+
 Base.length(tilegrid::TileGrid) = length(tilegrid.grid)
 Base.size(tilegrid::TileGrid, dims...) = size(tilegrid.grid, dims...)
 Base.getindex(tilegrid::TileGrid, i) = Tile(tilegrid.grid[i], tilegrid.z)
@@ -146,24 +177,6 @@ function GeoInterface.extent(tile::Tile, crs::WebMercator)
     bottom = top - tile_size
 
     return Extent(X=(left, right), Y=(bottom, top))
-end
-
-"Get the tiles overlapped by a geographic bounding box"
-function TileGrid(bbox::Extent, zoom::Int, crs::WGS84)
-    # Mercantile splits the bbox in two along the antimeridian if this happens.
-    # Decide if that case should be handled here or before, also considering
-    # antimeridian discussion in https://github.com/rafaqz/Extents.jl/issues/4
-    @assert bbox.X[1] < bbox.X[2]
-
-    # Clamp bounding values.
-    max_bbox = Extent(X = (-180.0, 180.0), Y = (-85.051129, 85.051129))
-    bbox = Extents.intersect(bbox, max_bbox)
-
-    ul_tile = Tile((bbox.X[1], bbox.Y[1]), zoom, crs)
-    lr_tile = Tile((bbox.X[2] - LL_EPSILON, bbox.Y[2] + LL_EPSILON), zoom, crs)
-
-    grid = CartesianIndices((ul_tile.x:lr_tile.x, lr_tile.y:ul_tile.y))
-    return TileGrid(grid, zoom)
 end
 
 "Returns the bounding box of a tile in lng lat"
