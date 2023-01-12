@@ -3,9 +3,12 @@ module MapTiles
 import HTTP, ImageMagick, ProtoBuf
 using Base: @kwdef # exist since julia 1.1, exported only since 1.9
 using Extents
+using GeoInterface: GeoInterface, extent
+using GeoFormatTypes: GeoFormatTypes, CoordinateReferenceSystemFormat
 
-include("providers.jl")
+export Tile, TileGrid
+
 include("tiles.jl")
-include("utils.jl")
+include("providers.jl")
 
 end

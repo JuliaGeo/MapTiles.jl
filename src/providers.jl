@@ -49,34 +49,32 @@ usagewarning(provider::AbstractProvider) =
            "setting up your own tile server instead. For details, ",
            "please see https://switch2osm.org/serving-tiles/.")
 
+function geturl(provider::AbstractProvider, tile::Tile)
+    geturl(provider, tile.x, tile.y, tile.z)
+end
+
 function request(
         provider::AbstractProvider,
-        x::Integer,
-        y::Integer,
-        z::Integer,
+        tile::Tile,
     )
-    url = geturl(provider,x,y,z)
-    result = HTTP.request("GET", url)
+    url = geturl(provider,tile)
+    result = HTTP.get(url)
     result.body
 end
 
 function fetchrastertile(
         provider::AbstractProvider,
-        x::Integer,
-        y::Integer,
-        z::Integer
+        tile::Tile,
     )
-    data = request(provider, x, y, z)
+    data = request(provider, tile)
     ImageMagick.readblob(data)
 end
 
 function fetchvectortile(
         provider::AbstractProvider,
-        x::Integer,
-        y::Integer,
-        z::Integer
+        tile::Tile
     )
-    data = request(provider, x, y, z)
+    data = request(provider, tile)
     ProtoBuf.readproto(IOBuffer(data), MapTiles.vector_tile.Tile())
 end
 
