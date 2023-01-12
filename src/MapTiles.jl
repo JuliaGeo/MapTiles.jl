@@ -6,9 +6,12 @@ using Extents
 using GeoInterface: GeoInterface, extent
 using GeoFormatTypes: GeoFormatTypes, CoordinateReferenceSystemFormat
 
+import TileProviders as Providers
+
+using TileProviders: geturl
+
 export Tile, TileGrid
 
 include("tiles.jl")
-include("providers.jl")
 
 end
