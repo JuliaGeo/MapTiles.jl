@@ -770,8 +770,7 @@ end
 """
     NASAGIBS(variant::Symbol; date="2020-01-01")
 
-[`Provider`](@ref) for A huge range of layers from 
-[NASA GIBS](https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/#visualization-product-catalog).
+[`Provider`](@ref) for A huge range of layers from the NASA Global Imagery Browse Services (GIBS).
 
 Some common layers like `:BlueMarble_****` variants and `:VIIRS_CityLights_2012`, and masks/coasatlines 
 do not require `date`. Most others layers do, with a default of 2020-01-01 used.
@@ -800,7 +799,7 @@ function NASAGIBS(variant::Symbol=:reflectance; date="2020-01-01")
     if date isa Dates.TimeType
         date = Dates.format(date, "yyyy-mm-dd")
     end
-    provider = Provider(
+    provider = Provider{:NASAGIBS}(
         "https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/{variant}/default/{date}/GoogleMapsCompatible_Level{maxZoom}/{z}/{y}/{x}.{format}",
         Dict(
             :bounds => [[-85.0511287776, -179.999999975], [85.0511287776, 179.999999975]],
