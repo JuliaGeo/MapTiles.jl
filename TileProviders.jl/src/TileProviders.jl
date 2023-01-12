@@ -2,7 +2,7 @@ module TileProviders
 
 using Dates, JSON3
 
-export Provider
+export AbstractProvider, Provider
 
 export geturl
 
