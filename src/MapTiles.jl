@@ -6,9 +6,14 @@ using Extents
 using GeoInterface: GeoInterface, extent
 using GeoFormatTypes: GeoFormatTypes, CoordinateReferenceSystemFormat
 
-export Tile, TileGrid
+import TileProviders
+
+using TileProviders: geturl, AbstractProvider, Provider
+
+const Providers = TileProviders
+
+export Tile, TileGrid, geturl, Providers
 
 include("tiles.jl")
-include("providers.jl")
 
 end
