@@ -1,16 +1,12 @@
-"""
-Determine the number of meters per pixel
-
-### Parameters
-* `lat`: latitude in radians
-* `z`: zoom level
-
-Source: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
-"""
-function resolution(lat::Real, z::Integer)
-    meter_per_pixel = 156543.03 # For zoom = 0 at equator
-    meter_per_pixel * cos(lat) / (2^z)
-end
+using MapTiles: MapTiles
+import MapTiles as MT
+using Extents
+using GeoInterface: GeoInterface, extent
+import GeoFormatTypes
+using HTTP
+using Makie
+using GLMakie
+import ImageMagick
 
 const R2D = 180 / pi
 const RE = 6378137.0
@@ -202,3 +198,72 @@ function GeoInterface.extent(tilegrid::TileGrid, crs::WebMercator)
 
     return Extent(X=(left, right), Y=(bottom, top))
 end
+
+plotimg(img::Matrix) = image(rotr90(img), axis=(;aspect=DataAspect()))
+
+function Makie.image!(ax::Axis, provider::MT.AbstractProvider, tile::Tile, crs)
+    img = MT.fetchrastertile(provider, tile)
+    bbox = extent(tile, crs)
+    x = bbox.X[1]..bbox.X[2]
+    y = bbox.Y[1]..bbox.Y[2]
+    image!(ax, x, y, rotr90(img))
+end
+
+function Makie.image(provider::MT.AbstractProvider, tile::Tile, crs)
+    fig = Figure()
+    ax = Axis(fig[1,1], aspect=DataAspect())
+    image!(ax, provider, tile, crs)
+    return fig
+end
+
+function Makie.image(provider::MT.AbstractProvider, tilegrid::TileGrid, crs)
+    bbox = extent(tilegrid, crs)
+    fig = Figure()
+    ax = Axis(fig[1,1], aspect=DataAspect())
+    for tile in tilegrid
+        image!(ax, provider, tile, crs)
+    end
+    xlims!(ax, bbox.X...)
+    ylims!(ax, bbox.Y...)
+    return fig
+end
+
+
+
+point_wgs = (-105.0, 40.0)
+tile = Tile(point_wgs, 1, wgs84)
+bbox = extent(tile, wgs84)
+extent(tile, web_mercator)
+point_web = project(point_wgs, wgs84, web_mercator)
+project(point_web, web_mercator, wgs84)
+TileGrid(tile)
+TileGrid(bbox, 0, wgs84)
+tilegrid = TileGrid(bbox, 3, wgs84)
+extent(tilegrid, wgs84)
+extent(tilegrid, web_mercator)
+
+bbox = Extent(X = (-11.250, 16.853), Y = (40.984, 52.483))
+tilegrid = TileGrid(bbox, 4, wgs84)
+extent(tilegrid, web_mercator)
+
+provider = MapTiles.OpenStreetMapProvider()
+
+MT.geturl(provider::MT.AbstractProvider, tile::Tile) = MT.geturl(provider, tile.x, tile.y, tile.z)
+MT.request(provider::MT.AbstractProvider, tile::Tile) = MT.request(provider, tile.x, tile.y, tile.z)
+MT.fetchrastertile(provider::MT.AbstractProvider, tile::Tile) = MT.fetchrastertile(provider, tile.x, tile.y, tile.z)
+img
+
+img = MT.fetchrastertile(provider, tile)
+bbox = extent(tile, web_mercator)
+
+image(provider, tile, web_mercator)
+image(provider, tile, wgs84)
+image(provider, tilegrid, web_mercator)
+image(provider, tilegrid, wgs84)
+
+# provider = MT.CARTOProvider()
+provider = MT.NASAGIBSProvider()
+bbox = Extent(X = (-11.250, 16.853), Y = (40.984, 52.483))
+tilegrid = TileGrid(bbox, 5, wgs84)
+image(provider, tilegrid, web_mercator)
+image(provider, tilegrid, wgs84)
