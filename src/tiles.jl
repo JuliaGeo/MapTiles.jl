@@ -19,8 +19,8 @@ const EPSILON = 1e-14
 const LL_EPSILON = 1e-11
 
 # represent the two major CRS so we can dispatch on them
-struct WGS84 <: GeoFormatTypes.CoordinateReferenceSystemFormat end
-struct WebMercator <: GeoFormatTypes.CoordinateReferenceSystemFormat end
+struct WGS84 <: CoordinateReferenceSystemFormat end
+struct WebMercator <: CoordinateReferenceSystemFormat end
 
 Base.convert(::Type{GeoFormatTypes.EPSG}, ::WebMercator) = EPSG(3857)
 Base.convert(::Type{GeoFormatTypes.EPSG}, ::WGS84) = EPSG(4326)
@@ -57,9 +57,9 @@ function project(point, from::WGS84, to::WebMercator)
     return x, y
 end
 
-function project(bbox::Extent, from, to)
-    left, bottom = MT.project((bbox.X[1], bbox.Y[1]), from, to)
-    right, top = MT.project((bbox.X[2], bbox.Y[2]), from, to)
+function project_extent(bbox::Extent, from::CoordinateReferenceSystemFormat, to::CoordinateReferenceSystemFormat)
+    left, bottom = project((bbox.X[1], bbox.Y[1]), from, to)
+    right, top = project((bbox.X[2], bbox.Y[2]), from, to)
 
     return Extent(X=(left, right), Y=(bottom, top))
 end
@@ -133,7 +133,7 @@ end
 
 "Get the tiles overlapped by a web mercator bounding box"
 function TileGrid(bbox::Extent, zoom::Int, crs::WebMercator)
-    bbox = project(bbox, crs, wgs84)
+    bbox = project_extent(bbox, crs, wgs84)
     return TileGrid(bbox, zoom, wgs84)
 end
 

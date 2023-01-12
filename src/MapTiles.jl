@@ -4,7 +4,7 @@ import HTTP, ImageMagick, ProtoBuf
 using Base: @kwdef # exist since julia 1.1, exported only since 1.9
 using Extents
 using GeoInterface: GeoInterface, extent
-import GeoFormatTypes
+using GeoFormatTypes: GeoFormatTypes, CoordinateReferenceSystemFormat
 
 export Tile, TileGrid
 
