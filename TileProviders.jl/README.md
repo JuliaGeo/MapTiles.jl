@@ -7,7 +7,7 @@
 
 Provider map tiles in a `Provider` object.
 
-Complete urls to tiles can be retrieved with `geturl(provider, x::Int, x::Integer, z::Integer)`.
+Complete urls to tiles can be retrieved with `geturl(provider::Provider, x::Int, x::Integer, z::Integer)`.
 
 
 A custom provider can be provided with:
