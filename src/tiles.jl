@@ -216,6 +216,9 @@ function GeoInterface.extent(tilegrid::TileGrid, crs::WebMercator)
     return Extent(X=(left, right), Y=(bottom, top))
 end
 
+function TileProviders.geturl(provider::AbstractProvider, tile::Tile)
+    TileProviders.geturl(provider, tile.x, tile.y, tile.z)
+end
 
 function request(
         provider::AbstractProvider,
@@ -241,3 +244,4 @@ function fetchvectortile(
     data = request(provider, tile)
     ProtoBuf.readproto(IOBuffer(data), MapTiles.vector_tile.Tile())
 end
+
