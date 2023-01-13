@@ -6,6 +6,8 @@ export AbstractProvider, Provider
 
 export geturl
 
+export Google, NASAGIBSTimeseries # Others are exported from @eval code
+
 include("provider.jl")
 include("nasagibs.jl")
 
