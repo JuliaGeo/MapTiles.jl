@@ -43,6 +43,8 @@ end
 
 url(provider::AbstractProvider) = provider.url
 options(provider::AbstractProvider) = provider.options
+min_zoom(provider::Provider) = get(options(provider), :min_zoom, 1)
+max_zoom(provider::Provider) = get(options(provider), :max_zoom, 19)
 
 _variant_list(variants::NamedTuple) = _variant_list(keys(variants))
 _variant_list(variants) =
@@ -67,8 +69,7 @@ modification in `Provider`.
 """
 function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
     ops = options(provider)
-    max_zoom = get(ops, :max_zoom, 23)
-    z > max_zoom && throw(ArgumentError("z is larger than max_zoom"))
+    z > max_zoom(provider) && throw(ArgumentError("z is larger than max_zoom"))
     replacements = [
         "{s}" => string(""), # TODO handle subdomains
         "{x}" => string(Int(x)), 
