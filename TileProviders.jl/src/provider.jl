@@ -1,5 +1,7 @@
 abstract type AbstractProvider end
 
+const PROVIDER_DICT = Dict{Function,Vector{Symbol}}()
+
 """
     Provider
 
@@ -164,6 +166,7 @@ let
                 end
             end
 
+            @eval PROVIDER_DICT[$k] = collect($variants)
         else
             hasapikey = _hasapikey(v)
             hasaccesstoken = _hasaccesstoken(v)
@@ -206,6 +209,7 @@ let
                     end
                 end
             end
+            @eval PROVIDER_DICT[$k] = Symbol[]
         end
         @eval export $k
     end
@@ -236,3 +240,5 @@ function Google(variant=:satelite)
         )
     )
 end
+
+list_providers() = PROVIDER_DICT
