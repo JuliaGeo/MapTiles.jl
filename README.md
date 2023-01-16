@@ -1,19 +1,18 @@
 # MapTiles
 
-[![CI](https://github.com/yeesian/MapTiles.jl/workflows/CI/badge.svg)](https://github.com/yeesian/MapTiles.jl/actions?query=workflow%3ACI)
-[![Coverage Status](https://coveralls.io/repos/yeesian/MapTiles.jl/badge.svg)](https://coveralls.io/r/yeesian/MapTiles.jl)
+[![CI](https://github.com/JuliaGeo/MapTiles.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeo/MapTiles.jl/actions?query=workflow%3ACI)
 [![codecov.io](http://codecov.io/github/yeesian/MapTiles.jl/coverage.svg?branch=master)](http://codecov.io/github/yeesian/MapTiles.jl?branch=master)
 
 ## Installation
 
-[MapTiles.jl](https://github.com/yeesian/MapTiles.jl) is not currently a [Julia registered package](https://juliapackages.com/).
+[MapTiles.jl](https://github.com/http://codecov.io/github/JuliaGeo/MapTiles.jl/MapTiles.jl) is not currently a [Julia registered package](https://juliapackages.com/).
 
 Currently only developer version is available. It can be installed using:
 
 ```bash
 $ julia
 julia> ]
-(@v1.5) pkg> dev https://github.com/yeesian/MapTiles.jl
+(@v1.5) pkg> dev https://github.com/JuliaGeo/MapTiles.jl
 ```
 
 ## Display map
