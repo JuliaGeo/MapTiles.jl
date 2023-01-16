@@ -1,7 +1,7 @@
 # MapTiles
 
 [![CI](https://github.com/JuliaGeo/MapTiles.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeo/MapTiles.jl/actions?query=workflow%3ACI)
-[![codecov.io](http://codecov.io/github/yeesian/MapTiles.jl/coverage.svg?branch=master)](http://codecov.io/github/yeesian/MapTiles.jl?branch=master)
+[![codecov.io](http://codecov.io/github/JuliaGeo/MapTiles.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaGeo/MapTiles.jl?branch=master)
 
 ## Installation
 
