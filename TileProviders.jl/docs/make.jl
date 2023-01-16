@@ -6,11 +6,11 @@ DocMeta.setdocmeta!(TileProviders, :DocTestSetup, :(using TileProviders); recurs
 makedocs(;
     modules=[TileProviders],
     authors="Rafael Schouten <rafaelschouten@gmail.com>",
-    repo="https://github.com/rafaqz/TileProviders.jl/blob/{commit}{path}#{line}",
+    repo="https://github.com/JuliaGeo/TileProviders.jl/blob/{commit}{path}#{line}",
     sitename="TileProviders.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://rafaqz.github.io/TileProviders.jl",
+        canonical="https://JuliaGeo.github.io/TileProviders.jl",
         edit_link="main",
         assets=String[],
     ),
@@ -20,6 +20,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/rafaqz/TileProviders.jl",
+    repo="github.com/JuliaGeo/TileProviders.jl",
     devbranch="main",
 )

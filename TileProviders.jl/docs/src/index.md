@@ -4,7 +4,7 @@ CurrentModule = TileProviders
 
 # TileProviders
 
-Documentation for [TileProviders](https://github.com/rafaqz/TileProviders.jl).
+Documentation for [TileProviders](https://github.com/JuliaGeo/TileProviders.jl).
 
 ```@index
 ```
