@@ -30,6 +30,7 @@ Base.convert(::Type{Int}, ::WebMercator) = 3857
 Base.convert(::Type{Int}, ::WGS84) = 4326
 
 "Convert web mercator x, y to longitude and latitude"
+project(point, ::T, ::T) where T = point
 function project(point, from::WebMercator, to::WGS84)
     x = GeoInterface.x(point)
     y = GeoInterface.y(point)
@@ -244,4 +245,3 @@ function fetchvectortile(
     data = request(provider, tile)
     ProtoBuf.readproto(IOBuffer(data), MapTiles.vector_tile.Tile())
 end
-
