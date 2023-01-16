@@ -1,6 +1,7 @@
 The MapTiles.jl package is licensed under the MIT "Expat" License:
 
-> Copyright (c) 2017: Yeesian Ng.
+> Copyright (c) 2023: Martijn Visser, Rafael Schouten, Simon Danisch, Yeesian
+> Ng, and contributors: https://github.com/JuliaGeo/MapTiles.jl/contributors.
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
