@@ -22,8 +22,8 @@ const LL_EPSILON = 1e-11
 struct WGS84 <: CoordinateReferenceSystemFormat end
 struct WebMercator <: CoordinateReferenceSystemFormat end
 
-Base.convert(::Type{GeoFormatTypes.EPSG}, ::WebMercator) = EPSG(3857)
-Base.convert(::Type{GeoFormatTypes.EPSG}, ::WGS84) = EPSG(4326)
+Base.convert(::Type{EPSG}, ::WebMercator) = EPSG(3857)
+Base.convert(::Type{EPSG}, ::WGS84) = EPSG(4326)
 Base.convert(::Type{String}, ::WebMercator) = "EPSG:3857"
 Base.convert(::Type{String}, ::WGS84) = "EPSG:4326"
 Base.convert(::Type{Int}, ::WebMercator) = 3857
@@ -215,33 +215,4 @@ function GeoInterface.extent(tilegrid::TileGrid, crs::WebMercator)
     bottom = top - tile_size * ny
 
     return Extent(X=(left, right), Y=(bottom, top))
-end
-
-function TileProviders.geturl(provider::AbstractProvider, tile::Tile)
-    TileProviders.geturl(provider, tile.x, tile.y, tile.z)
-end
-
-function request(
-        provider::AbstractProvider,
-        tile::Tile,
-    )
-    url = geturl(provider,tile)
-    result = HTTP.get(url)
-    result.body
-end
-
-function fetchrastertile(
-        provider::AbstractProvider,
-        tile::Tile,
-    )
-    data = request(provider, tile)
-    ImageMagick.readblob(data)
-end
-
-function fetchvectortile(
-        provider::AbstractProvider,
-        tile::Tile
-    )
-    data = request(provider, tile)
-    ProtoBuf.readproto(IOBuffer(data), MapTiles.vector_tile.Tile())
 end

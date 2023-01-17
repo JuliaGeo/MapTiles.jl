@@ -1,17 +1,10 @@
 module MapTiles
 
-import HTTP, ImageMagick
-using Base: @kwdef # exist since julia 1.1, exported only since 1.9
-using Extents
-using GeoInterface: GeoInterface, extent
-using GeoFormatTypes: GeoFormatTypes, CoordinateReferenceSystemFormat
-import TileProviders
+using GeoInterface: GeoInterface, Extent, extent
+using GeoFormatTypes: EPSG, CoordinateReferenceSystemFormat
+import Extents
 
-using TileProviders: geturl, AbstractProvider, Provider
-
-const Providers = TileProviders
-
-export Tile, TileGrid, geturl, Providers
+export Tile, TileGrid
 
 include("tiles.jl")
 
