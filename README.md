@@ -5,7 +5,7 @@
 
 ## Installation
 
-[MapTiles.jl](https://github.com/http://codecov.io/github/JuliaGeo/MapTiles.jl/MapTiles.jl) is not currently a [Julia registered package](https://juliapackages.com/).
+[MapTiles.jl](https://github.com/JuliaGeo/MapTiles.jl) is not currently a [Julia registered package](https://juliapackages.com/).
 
 Currently only developer version is available. It can be installed using:
 
