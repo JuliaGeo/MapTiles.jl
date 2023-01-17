@@ -1,6 +1,6 @@
 name = "MapTiles"
 uuid = "fea52e5a-b371-463b-85f5-81770daa2737"
-version = "0.1.0"
+version = "1.0.0"
 
 [deps]
 Extents = "411431e0-e8b7-467b-b5e0-f676ba4f2910"
@@ -8,11 +8,15 @@ GeoFormatTypes = "68eda718-8dee-11e9-39e7-89f7f65f511f"
 GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
-ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
 TileProviders = "263fe934-28e1-4ae9-998a-c2629c5fede6"
 
 [compat]
 julia = "1"
+Extents = "0.1"
+GeoFormatTypes = "0.4"
+HTTP = "1.7"
+ImageMagick = "1.2"
+TileProviders = "0.1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
