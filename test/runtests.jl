@@ -2,6 +2,9 @@ import MapTiles as MT
 using GeoInterface: Extent, extent
 using MapTiles
 using Test
+import Aqua
+import HTTP, ImageMagick
+using TileProviders
 
 @testset "MapTiles" begin
 
@@ -59,5 +62,7 @@ end
     @test webbox.Y[1] ≈ -7.081154551613622e-10
     @test webbox.Y[2] ≈ 2.0037508342789244e7
 end
+
+Aqua.test_all(MapTiles)
 
 end

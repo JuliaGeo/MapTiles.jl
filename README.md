@@ -15,6 +15,16 @@ julia> ]
 (@v1.5) pkg> dev https://github.com/JuliaGeo/MapTiles.jl
 ```
 
+## Get a tile image
+
+```julia
+function get_tile(provider::AbstractProvider, tile::Tile)
+    url = geturl(provider, tile.x, tile.y, tile.z)
+    result = HTTP.get(url)
+    ImageMagick.readblob(result.body)
+end
+```
+
 ## Display map
 ### Display map from buildin mapsource providers
 ```julia
