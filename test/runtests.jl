@@ -6,6 +6,9 @@ import Aqua
 import HTTP, ImageMagick
 using TileProviders
 
+RGB = ImageMagick.ColorTypes.RGB
+N0f8 = ImageMagick.FixedPointNumbers.N0f8
+
 @testset "MapTiles" begin
 
 @testset "Tile" begin
@@ -61,6 +64,19 @@ end
     @test webbox.X[2] == 0.0
     @test webbox.Y[1] ≈ -7.081154551613622e-10
     @test webbox.Y[2] ≈ 2.0037508342789244e7
+end
+
+@testset "get tile image" begin
+    provider = OpenStreetMap()
+    # get the most zoomed out image of the whole world
+    tile = Tile(0, 0, 0)
+    url = geturl(provider, tile.x, tile.y, tile.z)
+    result = HTTP.get(url)
+    @test result.status == 200
+    @test HTTP.header(result, "Content-Type") == "image/png"
+    img = ImageMagick.readblob(result.body)
+    @test img isa Matrix{RGB{N0f8}}
+    @test size(img) == (256, 256)
 end
 
 Aqua.test_all(MapTiles)
