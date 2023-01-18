@@ -83,7 +83,7 @@ function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
             push!(replacements, string('{', key, '}') => string(val))
         end
     end
-    return replace(url(provider), replacements...)
+    return reduce(replace, replacements, init=url(provider))
 end
 
 function _handle_apikey(k, v) 
