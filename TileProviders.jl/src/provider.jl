@@ -5,14 +5,13 @@ const PROVIDER_DICT = Dict{Function,Vector{Symbol}}()
 """
     Provider
 
-    Provider(url; name=nothing, maxzoom=18, attribution="")
+    Provider(url; name=nothing, max_zoom=18, attribution="")
 
 Defines the parameters of a base layer tile provider, such as `OSM`, `Esri` etc.
 
-`Provider` can also be defined manually for custome tile providers.
+`Provider` can also be defined manually for custom tile providers.
 
 # Arguments
-
 - `url`: URL tile path, e.g. "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
 # Keywords
@@ -20,7 +19,7 @@ Defines the parameters of a base layer tile provider, such as `OSM`, `Esri` etc.
 
 # Example
 
-Manually define an Open Street Map provider.
+Manually define an OpenStreetMap provider.
 
 ```julia
 using Blink, Leaflet
@@ -63,7 +62,7 @@ end
 
 Replace `x`, `y` and `z` in the provider url.
 
-If the provider options have keys other than `:maxZoom` and `:attribution`
+If the provider options have keys other than `:max_zoom` and `:attribution`
 they will also be replaced.
 
 We follow the behaviour of Leaflet.js so their provider urls work without
@@ -74,9 +73,9 @@ function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
     z > max_zoom(provider) && throw(ArgumentError("z is larger than max_zoom"))
     replacements = [
         "{s}" => string(""), # TODO handle subdomains
-        "{x}" => string(Int(x)), 
-        "{y}" => string(Int(y)), 
-        "{z}" => string(Int(z)), 
+        "{x}" => string(Int(x)),
+        "{y}" => string(Int(y)),
+        "{z}" => string(Int(z)),
     ]
     foreach(keys(ops), values(ops)) do key, val
         if !(key in (:url, :attribution, :html_attribution, :name))
@@ -86,7 +85,7 @@ function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
     return reduce(replace, replacements, init=url(provider))
 end
 
-function _handle_apikey(k, v) 
+function _handle_apikey(k, v)
     hasapikey = map(values(v)) do d
         _hasapikey(d)
     end |> any
@@ -103,7 +102,7 @@ function _keyword_docs(hasapikey, hasaccesstoken, k)
     if hasapikey || hasaccesstoken
         """
         ## Keywords
-        
+
         - `$(hasapikey ? "apikey" : "accesstoken") `: Your API key for the $k service.
         """
     else
@@ -111,7 +110,7 @@ function _keyword_docs(hasapikey, hasaccesstoken, k)
     end
 end
 
-# Automate the definition of providers retrieved from 
+# Automate the definition of providers retrieved from
 # https://raw.githubusercontent.com/geopandas/xyzservices/main/provider_sources/leaflet-providers-parsed.json
 # by parsing them to Julia functions that generate a `Provider`
 let
@@ -119,7 +118,7 @@ let
     provider_dict = JSON3.read(read(provider_file))
     for (k, v) in provider_dict
         k == :_meta && continue
-        if first(values(v)) isa JSON3.Object 
+        if first(values(v)) isa JSON3.Object
             hasapikey, hasaccesstoken, keyword_docs = _handle_apikey(k, v)
             keyword = hasapikey ? :apikey : (hasaccesstoken ? :accesstoken : Symbol(""))
             variants = keys(v)
@@ -147,7 +146,7 @@ let
 
                 $keyword_docs
                 """
-            end 
+            end
 
             # Generate the function
             if hasapikey || hasaccesstoken
@@ -191,7 +190,7 @@ let
 
                 $keyword_docs
                 """
-            end 
+            end
 
             # Generate the function
             if hasapikey || hasaccesstoken
