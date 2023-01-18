@@ -79,7 +79,7 @@ function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
         "{z}" => string(Int(z)), 
     ]
     foreach(keys(ops), values(ops)) do key, val
-        if !(key in (:attributes, :html_attributes, :name))
+        if !(key in (:url, :attribution, :html_attribution, :name))
             push!(replacements, string('{', key, '}') => string(val))
         end
     end
