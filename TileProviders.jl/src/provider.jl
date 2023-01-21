@@ -44,8 +44,8 @@ end
 
 url(provider::AbstractProvider) = provider.url
 options(provider::AbstractProvider) = provider.options
-min_zoom(provider::Provider)::Int = get(options(provider), :min_zoom, 1)
-max_zoom(provider::Provider)::Int = get(options(provider), :max_zoom, 19)
+min_zoom(provider::AbstractProvider)::Int = get(options(provider), :min_zoom, 1)
+max_zoom(provider::AbstractProvider)::Int = get(options(provider), :max_zoom, 19)
 
 _variant_list(variants::NamedTuple) = _variant_list(keys(variants))
 _variant_list(variants) =
