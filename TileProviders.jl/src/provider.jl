@@ -92,7 +92,6 @@ end
 function _access(d)
     for key in (:apikey, :apiKey, :accessToken, :subscriptionKey, :app_code)
         if hasproperty(d, key)
-            @show key
             return key
         end
     end
