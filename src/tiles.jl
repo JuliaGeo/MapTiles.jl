@@ -107,6 +107,26 @@ function Tile(point, zoom::Integer, crs::WGS84)
     return Tile(xtile, ytile, zoom)
 end
 
+"""
+    z_index(extent::Extent, res::NamedTuple, crs::WebMercator) => Int
+
+Calculate a z value from `extent` and pixel resolution `res` for `crs`.
+The rounded mean calculated z-index for X and Y resolutions is returned.
+
+`res` should be `(X=xres, Y=yres)` to match the extent.
+
+We assume tiles are the standard 256*256 pixels. Note that this is not an
+enforced standard, and that retina tiles are 512*512.
+"""
+function z_index(extent::Extent, res::NamedTuple, crs::WebMercator)
+    ntiles = map(r -> r / 256, res)
+    tile_size_X = (extent.X[2] - extent.X[1]) / ntiles.X 
+    tile_size_Y = (extent.Y[2] - extent.Y[1]) / ntiles.Y 
+    tile_size = (tile_size_X + tile_size_Y) / 2
+    z = log2(CE / tile_size)
+    return round(Int, z)
+end
+
 struct TileGrid
     grid::CartesianIndices{2, Tuple{UnitRange{Int}, UnitRange{Int}}}
     z::Int
@@ -140,6 +160,7 @@ end
 
 Base.length(tilegrid::TileGrid) = length(tilegrid.grid)
 Base.size(tilegrid::TileGrid, dims...) = size(tilegrid.grid, dims...)
+Base.axes(tilegrid::TileGrid, dims...) = aces(tilegrid.grid, dims...)
 Base.getindex(tilegrid::TileGrid, i) = Tile(tilegrid.grid[i], tilegrid.z)
 Base.firstindex(tilegrid::TileGrid) = firstindex(tilegrid.grid)
 Base.lastindex(tilegrid::TileGrid) = lastindex(tilegrid.grid)
@@ -216,3 +237,5 @@ function GeoInterface.extent(tilegrid::TileGrid, crs::WebMercator)
 
     return Extent(X=(left, right), Y=(bottom, top))
 end
+
+
