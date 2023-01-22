@@ -160,7 +160,7 @@ end
 
 Base.length(tilegrid::TileGrid) = length(tilegrid.grid)
 Base.size(tilegrid::TileGrid, dims...) = size(tilegrid.grid, dims...)
-Base.axes(tilegrid::TileGrid, dims...) = aces(tilegrid.grid, dims...)
+Base.axes(tilegrid::TileGrid, dims...) = axes(tilegrid.grid, dims...)
 Base.getindex(tilegrid::TileGrid, i) = Tile(tilegrid.grid[i], tilegrid.z)
 Base.firstindex(tilegrid::TileGrid) = firstindex(tilegrid.grid)
 Base.lastindex(tilegrid::TileGrid) = lastindex(tilegrid.grid)
