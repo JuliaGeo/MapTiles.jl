@@ -40,6 +40,7 @@ MtbMap()
 NASAGIBS()
 NASAGIBSTimeseries()
 NLS()
+nlmaps()
 OPNVKarte()
 OneMapSG()
 OpenAIP()
@@ -58,7 +59,6 @@ Thunderforest()
 TomTom()
 USGS()
 WaymarkedTrails()
-nlmaps()
 ```
 
 Some providers will need an `apikey`, `accesstoken`, `app_code` or `subscriptionkey` keyword if registration
