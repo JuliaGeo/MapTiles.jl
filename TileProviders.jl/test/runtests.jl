@@ -4,45 +4,49 @@ using Dates
 
 @testset "TileProviders.jl run" begin
     providers = (
-        CyclOSM(),
-        USGS(),
-        Stadia(),
-        OPNVKarte(),
-        FreeMapSK(),
-        HikeBike(),
-        NLS(),
-        OpenSeaMap(),
-        WaymarkedTrails(),
-        MtbMap(),
-        CartoDB(),
-        OpenRailwayMap(),
-        NASAGIBS(),
-        OneMapSG(),
-        Stamen(),
-        JusticeMap(),
-        SafeCast(),
-        MapTiler(),
-        OpenFireMap(),
+        # from leaflet-providers-parsed.json
         OpenStreetMap(),
-        Google(),
-        nlmaps(),
-        SwissFederalGeoportal(),
+        MapTilesAPI(; apikey="some_key"),
+        OpenSeaMap(),
+        OPNVKarte(),
         OpenTopoMap(),
-        OpenSnowMap(),
-        OpenAIP(),
-        Esri(),
-        BasemapAT(),
-        TomTom(; apikey="some_apikey"),
+        OpenRailwayMap(),
+        OpenFireMap(),
+        SafeCast(),
+        Stadia(),
         Thunderforest(; apikey="some_apikey"),
+        CyclOSM(),
         Jawg(; accesstoken="some_token"),
-        GeoportailFrance(; apikey="some_apikey"),
         MapBox(; accesstoken="some_token"),
-        Jawg(; accesstoken="some_token"),
-        Thunderforest(; apikey="some_apikey"),
+        MapTiler(),
+        Stamen(),
+        TomTom(; apikey="some_apikey"),
+        Esri(),
+        OpenWeatherMap(; apikey="some_apikey"),
         HERE(; app_code="some_app_code"),
         HEREv3(; apikey="some_apikey"),
-        TileProviders.NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07)),
-        TileProviders.Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png") ,
+        FreeMapSK(),
+        MtbMap(),
+        CartoDB(),
+        HikeBike(),
+        BasemapAT(),
+        nlmaps(),
+        NASAGIBS(),
+        NLS(),
+        JusticeMap(),
+        GeoportailFrance(; apikey="some_apikey"),
+        OneMapSG(),
+        USGS(),
+        WaymarkedTrails(),
+        OpenAIP(),
+        OpenSnowMap(),
+        AzureMaps(; subscriptionkey="some_subscriptionkey"),
+        SwissFederalGeoportal(),
+
+        # Google, NASAGIBSTimeseries, general Provider
+        Google(),
+        NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07)),
+        Provider("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png") ,
     )
 
     for provider in providers
@@ -52,20 +56,21 @@ using Dates
         @test !occursin("}", url)
     end
 
-    provider = TileProviders.OpenStreetMap()
+    provider = OpenStreetMap()
     @test TileProviders.geturl(provider, 1, 2, 3) == "https://tile.openstreetmap.org/3/1/2.png"
-    provider = TileProviders.NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
+    provider = NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
     @test TileProviders.geturl(provider, 1, 2, 3) == "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/AMSRE_Brightness_Temp_89H_Day/default/2010-05-07/GoogleMapsCompatible_Level6/3/2/1.png"
 
-    @test_throws UndefKeywordError MapBox()
     @test_throws UndefKeywordError MapTilesAPI()
-    @test_throws UndefKeywordError HEREv3()
-    @test_throws UndefKeywordError HERE()
-    @test_throws UndefKeywordError OpenWeatherMap()
-    @test_throws UndefKeywordError AzureMaps()
     @test_throws UndefKeywordError Thunderforest()
     @test_throws UndefKeywordError Jawg()
+    @test_throws UndefKeywordError MapBox()
+    @test_throws UndefKeywordError TomTom()
+    @test_throws UndefKeywordError OpenWeatherMap()
+    @test_throws UndefKeywordError HERE()
+    @test_throws UndefKeywordError HEREv3()
     @test_throws UndefKeywordError GeoportailFrance()
+    @test_throws UndefKeywordError AzureMaps()
 
     TileProviders.list_providers()
 end

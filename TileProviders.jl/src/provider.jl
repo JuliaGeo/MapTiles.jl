@@ -111,7 +111,7 @@ function _keyword_docs(keyword, name)
     """
     ## Keywords
 
-    - `$keyword`: Your API key for the $name service.
+    - `$(lowercase(string(keyword)))`: Your API key for the $name service.
     """
 end
 
@@ -146,8 +146,8 @@ let
             contents = quote
                 provider_name = $name
                 options = Dict($v)
-                $keyword_expr
                 variant in keys(options) || throw(ArgumentError("$provider_name variant must be from $(keys(options)), got $variant"))
+                $keyword_expr
                 Provider(options[variant][:url], options[variant])
             end
 
@@ -163,18 +163,20 @@ let
                     end
                 end
             else
+                clean_keyword = Symbol(lowercase(string(keyword))) 
                 @eval begin
                     @doc $docstring
-                    function $name(variant::Symbol=$(QuoteNode(first(variants))); $(Symbol(lowercase(string(keyword)))))
+                    function $name(variant::Symbol; $clean_keyword)
                         $contents
                     end
                 end
+                @eval $name(; $clean_keyword) = $name($(QuoteNode(first(variants))); $clean_keyword=$clean_keyword)
             end
 
             @eval PROVIDER_DICT[$name] = collect($variants)
         else
             keyword = _access(v)
-            keyword_docs = _keyword_docs(keyword, v)
+            keyword_docs = _keyword_docs(keyword, name)
             keyword_expr = isnothing(keyword) ? nothing : :(options[$(QuoteNode(keyword))] = $(Symbol(lowercase(string(keyword)))))
             contents = quote
                 options = Dict($v)
