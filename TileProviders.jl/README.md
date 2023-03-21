@@ -58,7 +58,6 @@ TileProviders()
 TomTom()
 USGS()
 WaymarkedTrails()
-geturl()
 nlmaps()
 ```
 
