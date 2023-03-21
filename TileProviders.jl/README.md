@@ -38,7 +38,9 @@ MapTiler()
 MapTilesAPI()
 MtbMap()
 NASAGIBS()
+NASAGIBSTimeseries()
 NLS()
+nlmaps()
 OPNVKarte()
 OneMapSG()
 OpenAIP()
@@ -54,15 +56,23 @@ Stadia()
 Stamen()
 SwissFederalGeoportal()
 Thunderforest()
-TileProviders()
 TomTom()
 USGS()
 WaymarkedTrails()
-nlmaps()
 ```
 
-Some providers will need an `apikey` or `accestoken` keyword if registration
+Some providers will need an `apikey`, `accesstoken`, `app_code` or `subscriptionkey` keyword if registration
 is required to use the dataset. See the docs for the function.
+
+To get the specific urls from a `Provider` use:
+```julia
+TileProviders.geturl(provider, x, y, z)
+```
+
+Get a dictionary of all `Providers` and their `variants` with:
+```julia
+TileProviders.list_providers()
+```
 
 Providers are retrieved from leaflet via geopandas repository:
 https://raw.githubusercontent.com/geopandas/xyzservices/main/provider_sources/leaflet-providers-parsed.json
