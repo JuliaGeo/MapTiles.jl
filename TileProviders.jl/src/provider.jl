@@ -12,6 +12,7 @@ Defines the parameters of a base layer tile provider, such as `OSM`, `Esri` etc.
 `Provider` can also be defined manually for custom tile providers.
 
 # Arguments
+
 - `url`: URL tile path, e.g. "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
 # Keywords
@@ -53,7 +54,7 @@ _variant_list(variants) =
 
 function _checkin(variant, variants)
     if !(variant in keys(variants))
-        throw(ArgumentError("`variant` must be one of $(keys(variants)), got $variant"))
+        throw(ArgumentError("`variant` must be one of $(keys(variants)), got $(QuoteNode(variant))"))
     end
 end
 
@@ -71,43 +72,62 @@ modification in `Provider`.
 function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
     ops = options(provider)
     z > max_zoom(provider) && throw(ArgumentError("z is larger than max_zoom"))
+    # Choose a random subdomain
+    subdomain = haskey(ops, :subdomains) ? string(rand(ops[:subdomains]), ".") : ""
     replacements = [
-        "{s}" => string(""), # TODO handle subdomains
+        "{s}." => subdomain, # We replace the trailing . in case there is no subdomain
         "{x}" => string(Int(x)),
         "{y}" => string(Int(y)),
         "{z}" => string(Int(z)),
+        "{r}" => "",
     ]
     foreach(keys(ops), values(ops)) do key, val
-        if !(key in (:url, :attribution, :html_attribution, :name))
+        if !(key in (:attributes, :html_attributes, :name))
             push!(replacements, string('{', key, '}') => string(val))
         end
     end
-    return reduce(replace, replacements, init=url(provider))
+    return replace(url(provider), replacements...)
 end
 
-function _handle_apikey(k, v)
-    hasapikey = map(values(v)) do d
-        _hasapikey(d)
-    end |> any
-    hasaccesstoken = map(values(v)) do d
-        _hasaccesstoken(d)
-    end |> any
-    return hasapikey, hasaccesstoken, _keyword_docs(hasapikey, hasaccesstoken, k)
-end
-
-_hasapikey(d) = haskey(d, :apikey)
-_hasaccesstoken(d) = haskey(d, :accessToken)
-
-function _keyword_docs(hasapikey, hasaccesstoken, k)
-    if hasapikey || hasaccesstoken
-        """
-        ## Keywords
-
-        - `$(hasapikey ? "apikey" : "accesstoken") `: Your API key for the $k service.
-        """
-    else
-        ""
+function _access(d)
+    for key in (:apikey, :apiKey, :accessToken, :subscriptionKey, :app_code)
+        if hasproperty(d, key)
+            return key
+        end
     end
+    return nothing
+end
+
+function _variant_docs(variants)
+    """
+    # Arguments
+
+    - `variant`: $(join(QuoteNode.(variants), ", ", " and ")), with a default of $(first(variants)).
+    """
+end
+
+_keyword_docs(::Nothing, name) = ""
+function _keyword_docs(keyword, name)
+    """
+    ## Keywords
+
+    - `$(lowercase(string(keyword)))`: Your API key for the $name service.
+    """
+end
+
+# Generate the documentation
+function _docstring(typ, keyword, attribution, variant_docs, keyword_docs)
+    """
+    $typ($(variant_docs == "" ? "" : "variant")$(isnothing(keyword) ? "" : "; $(lowercase(string(keyword)))"))
+
+    [`Provider`](@ref) for $typ tiles.
+
+    $attribution
+
+    $variant_docs
+
+    $keyword_docs
+    """
 end
 
 # Automate the definition of providers retrieved from
@@ -116,101 +136,74 @@ end
 let
     provider_file = joinpath(dirname(@__FILE__), "leaflet-providers-parsed.json")
     provider_dict = JSON3.read(read(provider_file))
-    for (k, v) in provider_dict
-        k == :_meta && continue
+    for (name, v) in provider_dict
+        name == :_meta && continue
         if first(values(v)) isa JSON3.Object
-            hasapikey, hasaccesstoken, keyword_docs = _handle_apikey(k, v)
-            keyword = hasapikey ? :apikey : (hasaccesstoken ? :accesstoken : Symbol(""))
+            keyword = _access(first(values(v)))
+            keyword_docs = _keyword_docs(keyword, name)
             variants = keys(v)
+            keyword_expr = isnothing(keyword) ? nothing : :(options[$(QuoteNode(keyword))] = $(Symbol(lowercase(string(keyword)))))
             contents = quote
-                provider_name = $k
-                options = $v
+                provider_name = $name
+                options = Dict($v)
                 variant in keys(options) || throw(ArgumentError("$provider_name variant must be from $(keys(options)), got $variant"))
+                $keyword_expr
                 Provider(options[variant][:url], options[variant])
             end
-            # Generate the documentation
-            docstring = let
-                typ = QuoteNode(k)
-                options = v
-                attribution = map(d -> d[:attribution], values(options)) |> first
-                """
-                    $typ(variant)
 
-                [`Provider`](@ref) for $typ tiles.
-
-                $attribution
-
-                # Arguments
-
-                - `variant`: $variants, with a default of $(first(variants)).
-
-                $keyword_docs
-                """
-            end
+            variant_docs = _variant_docs(variants)
+            docstring = _docstring(name, keyword, first(map(d -> d[:attribution], values(v))), variant_docs, keyword_docs)
 
             # Generate the function
-            if hasapikey || hasaccesstoken
+            if isnothing(keyword)
                 @eval begin
                     @doc $docstring
-                    function $k(variant::Symbol=$(QuoteNode(first(variants))); $keyword)
+                    function $name(variant::Symbol=$(QuoteNode(first(variants))))
                         $contents
                     end
                 end
             else
+                clean_keyword = Symbol(lowercase(string(keyword))) 
                 @eval begin
                     @doc $docstring
-                    function $k(variant::Symbol=$(QuoteNode(first(variants))))
+                    function $name(variant::Symbol; $clean_keyword)
                         $contents
                     end
                 end
+                @eval $name(; $clean_keyword) = $name($(QuoteNode(first(variants))); $clean_keyword=$clean_keyword)
             end
 
-            @eval PROVIDER_DICT[$k] = collect($variants)
+            @eval PROVIDER_DICT[$name] = collect($variants)
         else
-            hasapikey = _hasapikey(v)
-            hasaccesstoken = _hasaccesstoken(v)
-            keyword_docs = _keyword_docs(hasapikey, hasaccesstoken, v)
-            keyword = hasapikey ? :apikey : (hasaccesstoken ? :accesstoken : Symbol(""))
+            keyword = _access(v)
+            keyword_docs = _keyword_docs(keyword, name)
+            keyword_expr = isnothing(keyword) ? nothing : :(options[$(QuoteNode(keyword))] = $(Symbol(lowercase(string(keyword)))))
             contents = quote
-                options = $v
+                options = Dict($v)
+                $keyword_expr
                 Provider(options[:url], options)
             end
-            # Generate the documentation
-            docstring = let
-                typ = QuoteNode(k)
-                attribution = v[:attribution]
-                """
-                    $typ(variant)
-
-                [`Provider`](@ref) for $typ tiles.
-
-                $attribution
-
-                # Arguments
-
-                $keyword_docs
-                """
-            end
+            docstring = _docstring(name, keyword, v[:attribution], "", keyword_docs)
 
             # Generate the function
-            if hasapikey || hasaccesstoken
+            if isnothing(keyword)
                 @eval begin
                     @doc $docstring
-                    function $k(; $keyword)
+                    function $name()
                         $contents
                     end
                 end
             else
                 @eval begin
                     @doc $docstring
-                    function $k()
+                    function $name(; $(Symbol(lowercase(string(keyword)))))
                         $contents
                     end
                 end
             end
-            @eval PROVIDER_DICT[$k] = Symbol[]
+            @eval PROVIDER_DICT[$name] = Symbol[]
         end
-        @eval export $k
+        @eval export $name
     end
 end
 
@@ -220,13 +213,13 @@ end
 const _GOOGLE_VARIANTS = (satelite="s", roadmap="m", terrain="p", hybrid="y")
 
 """
-    Google()
+    Google(variant)
 
 [`Provider`](@ref) for base layers from Google maps.
 
 # Arguments
 
-- `variant`: $(keys(_GOOGLE_VARIANTS)), with a default of $first(keys(_GOOGLE_VARIANTS))).
+- `variants`: $(keys(_GOOGLE_VARIANTS)...), with a default of $(first(keys(_GOOGLE_VARIANTS)))).
 """
 function Google(variant=:satelite)
     _checkin(variant, _GOOGLE_VARIANTS)
@@ -239,5 +232,7 @@ function Google(variant=:satelite)
         )
     )
 end
+
+PROVIDER_DICT[Google] = collect(keys(_GOOGLE_VARIANTS))
 
 list_providers() = PROVIDER_DICT

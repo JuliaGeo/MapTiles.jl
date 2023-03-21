@@ -768,33 +768,46 @@ const _NASAGIBS_DICT = begin
 end
 
 """
-    NASAGIBS(variant::Symbol; date="2020-01-01")
+    NASAGIBSTimeseries(variant::Symbol; date="2020-01-01")
 
 [`Provider`](@ref) for A huge range of layers from the NASA Global Imagery Browse Services (GIBS).
 
-Some common layers like `:BlueMarble_****` variants and `:VIIRS_CityLights_2012`, and masks/coasatlines 
-do not require `date`. Most others layers do, with a default of 2020-01-01 used.
-`date` can be a "yyyy-mm-dd" formatted `String` or any `Dates.TimeType` like `Date` or `DateTime`.
-It must correspond to an available date for the dataset - if not empty tiles will be returned.
+# Arguments
+
+- `variant`: variant of layer, with a default of `:VIIRS_CityLights_2012`. See below for a full list of available `variants`.
+
+## Keywords
+
+- `date`: date of the requested dataset. If omitted, a default of 2020-01-01 will be used. Can be a "yyyy-mm-dd" formatted `String` or any `Dates.TimeType` like `Date` or `DateTime`. It must correspond to an available date for the dataset - if not empty tiles will be returned.
 
 Note that the default 2020 date may not correspond to an available date for a specific layer. 
-See the [NASA GIBS documentation](https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/#visualization-product-catalog)
-for the available dates.
+See the [NASA GIBS documentation](https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/#visualization-product-catalog) for the available dates.
+
+These following layers do not require a `date`: 
+- the `:BlueMarble_****` variants
+- `:Coastlines`
+- `:MODIS_Water_Mask`
+- `:Reference_Features`
+- `:Reference_Labels`
+- `:SMAP_L4_Uncertainty_Mean_Net_Ecosystem_Exchange` 
+- `:VIIRS_CityLights_2012`
 
 # Example
 
 ```julia
-provider = Leaflet.NASAGIBS(:VIIRS_CityLights_2012)
-# provider = Leaflet.NASAGIBS(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
+provider = NASAGIBSTimeseries()
+# provider = NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
 m = Leaflet.Map(; provider, zoom=3, height=1000);
 # Open as a Blink.jl app
 w = Blink.Window()
 body!(w, m)
 ```
 
+# Available Variants
+
 $(_variant_list(_NASAGIBS_KEYS))
 """
-function NASAGIBSTimeseries(variant::Symbol=:reflectance; date="2020-01-01")
+function NASAGIBSTimeseries(variant::Symbol=:VIIRS_CityLights_2012; date="2020-01-01")
     _checkin(variant, _NASAGIBS_DICT)
     if date isa Dates.TimeType
         date = Dates.format(date, "yyyy-mm-dd")
@@ -815,4 +828,4 @@ function NASAGIBSTimeseries(variant::Symbol=:reflectance; date="2020-01-01")
     return provider
 end
 
-
+PROVIDER_DICT[NASAGIBSTimeseries] = _NASAGIBS_KEYS
