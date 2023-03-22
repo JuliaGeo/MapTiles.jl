@@ -4,7 +4,7 @@ using Dates
 
 @testset "TileProviders.jl run" begin
     providers = (
-        TileProviders.OpenStreetMap() ,
+        TileProviders.OpenStreetMap(),
         TileProviders.OpenStreetMap(:France),
         TileProviders.OpenStreetMap(:DE),
         TileProviders.OpenTopoMap(),
