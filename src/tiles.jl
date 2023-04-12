@@ -153,7 +153,7 @@ function Base.iterate(tilegrid::TileGrid, state=1)
 end
 
 "Returns the bounding box of a tile in lng lat"
-function GeoInterface.extent(tile::Tile, crs::WGS84)
+function Extents.extent(tile::Tile, crs::WGS84)
     Z2 = 2^tile.z
 
     ul_lon_deg = tile.x / Z2 * 360.0 - 180.0
@@ -168,7 +168,7 @@ function GeoInterface.extent(tile::Tile, crs::WGS84)
 end
 
 "Get the web mercator bounding box of a tile"
-function GeoInterface.extent(tile::Tile, crs::WebMercator)
+function Extents.extent(tile::Tile, crs::WebMercator)
     tile_size = CE / 2^tile.z
 
     left = tile.x * tile_size - CE / 2
@@ -181,7 +181,7 @@ function GeoInterface.extent(tile::Tile, crs::WebMercator)
 end
 
 "Returns the bounding box of a tile in lng lat"
-function GeoInterface.extent(tilegrid::TileGrid, crs::WGS84)
+function Extents.extent(tilegrid::TileGrid, crs::WGS84)
     Z2 = 2^tilegrid.z
 
     ul_idx = tilegrid.grid[begin]
@@ -201,7 +201,7 @@ function GeoInterface.extent(tilegrid::TileGrid, crs::WGS84)
 end
 
 "Get the web mercator bounding box of a tile"
-function GeoInterface.extent(tilegrid::TileGrid, crs::WebMercator)
+function Extents.extent(tilegrid::TileGrid, crs::WebMercator)
     tile_size = CE / 2^tilegrid.z
 
     ul_idx = tilegrid.grid[begin]
