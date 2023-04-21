@@ -216,3 +216,7 @@ function Extents.extent(tilegrid::TileGrid, crs::WebMercator)
 
     return Extent(X=(left, right), Y=(bottom, top))
 end
+
+function GeoInterface.extent(tile::Union{Tile, TileGrid}, crs::Union{WGS84, WebMercator})
+    return Extents.extent(tile, crs)
+end
