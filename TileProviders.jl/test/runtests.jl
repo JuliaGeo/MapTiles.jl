@@ -60,6 +60,8 @@ using Dates
     @test TileProviders.geturl(provider, 1, 2, 3) == "https://tile.openstreetmap.org/3/1/2.png"
     provider = NASAGIBSTimeseries(:AMSRE_Brightness_Temp_89H_Day; date=Date(2010, 05, 07))
     @test TileProviders.geturl(provider, 1, 2, 3) == "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/AMSRE_Brightness_Temp_89H_Day/default/2010-05-07/GoogleMapsCompatible_Level6/3/2/1.png"
+    provider = GeoportailFrance(;apikey = "cartes") # Default variant corresponds to Plan IGN service "https://geoservices.ign.fr/services-web-experts-cartes"
+    @test TileProviders.geturl(provider, 1, 2, 3) == "https://wxs.ign.fr/cartes/geoportail/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&TILEMATRIX=3&TILEROW=2&TILECOL=1"
 
     @test_throws UndefKeywordError MapTilesAPI()
     @test_throws UndefKeywordError Thunderforest()

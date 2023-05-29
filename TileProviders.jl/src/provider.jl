@@ -86,7 +86,15 @@ function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
             push!(replacements, string('{', key, '}') => string(val))
         end
     end
-    return replace(url(provider), replacements...)
+    @static if VERSION < v"1.7"
+        result_url = url(provider)
+        for replacement in replacements
+            result_url = replace(result_url, replacement)
+        end
+        return result_url
+    else
+        return replace(url(provider), replacements...)
+    end
 end
 
 function _access(d)
@@ -142,10 +150,10 @@ let
             keyword = _access(first(values(v)))
             keyword_docs = _keyword_docs(keyword, name)
             variants = keys(v)
-            keyword_expr = isnothing(keyword) ? nothing : :(options[$(QuoteNode(keyword))] = $(Symbol(lowercase(string(keyword)))))
+            keyword_expr = isnothing(keyword) ? nothing : :(options[variant][$(QuoteNode(keyword))] = $(Symbol(lowercase(string(keyword)))))
             contents = quote
                 provider_name = $name
-                options = Dict($v)
+                options = copy($v)
                 variant in keys(options) || throw(ArgumentError("$provider_name variant must be from $(keys(options)), got $variant"))
                 $keyword_expr
                 Provider(options[variant][:url], options[variant])
