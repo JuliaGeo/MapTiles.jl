@@ -123,7 +123,7 @@ function TileGrid(bbox::Extent, zoom::Int, crs::WGS84)
 
     # Clamp bounding values.
     max_bbox = Extent(X = (-180.0, 180.0), Y = (-85.051129, 85.051129))
-    bbox = Extents.intersect(bbox, max_bbox)
+    bbox = Extents.intersection(bbox, max_bbox)
 
     ul_tile = Tile((bbox.X[1], bbox.Y[1]), zoom, crs)
     lr_tile = Tile((bbox.X[2] - LL_EPSILON, bbox.Y[2] + LL_EPSILON), zoom, crs)
