@@ -19,7 +19,6 @@ using Dates
         Jawg(; accesstoken="some_token"),
         MapBox(; accesstoken="some_token"),
         MapTiler(),
-        Stamen(),
         TomTom(; apikey="some_apikey"),
         Esri(),
         OpenWeatherMap(; apikey="some_apikey"),
