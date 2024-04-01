@@ -18,7 +18,7 @@ using Dates
         CyclOSM(),
         Jawg(; accesstoken="some_token"),
         MapBox(; accesstoken="some_token"),
-        MapTiler(; apikey="some_apikey")
+        MapTiler(; apikey="some_apikey"),
         TomTom(; apikey="some_apikey"),
         Esri(),
         OpenWeatherMap(; apikey="some_apikey"),
