@@ -98,7 +98,7 @@ function geturl(provider::AbstractProvider, x::Integer, y::Integer, z::Integer)
 end
 
 function _access(d)
-    for key in (:apikey, :apiKey, :accessToken, :subscriptionKey, :app_code)
+    for key in (:apikey, :apiKey, :accessToken, :subscriptionKey, :app_code, :key)
         if hasproperty(d, key)
             return key
         end
