@@ -31,7 +31,7 @@ using Dates
         BasemapAT(),
         nlmaps(),
         NASAGIBS(),
-        NLS(; apikey="some_apikey"),
+        #NLS(; apikey="some_apikey"),
         JusticeMap(),
         GeoportailFrance(; apikey="some_apikey"),
         OneMapSG(),
