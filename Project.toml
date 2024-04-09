@@ -8,11 +8,13 @@ GeoFormatTypes = "68eda718-8dee-11e9-39e7-89f7f65f511f"
 GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
 
 [compat]
+Aqua = "0.8"
 Extents = "0.1"
 GeoFormatTypes = "0.4"
 GeoInterface = "1"
 HTTP = "1.7"
 ImageMagick = "1.2"
+Test = "<0.0.1,1"
 TileProviders = "0.1"
 julia = "1"
 
