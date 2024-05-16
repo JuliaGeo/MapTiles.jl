@@ -29,6 +29,9 @@ Base.convert(::Type{String}, ::WGS84) = "EPSG:4326"
 Base.convert(::Type{Int}, ::WebMercator) = 3857
 Base.convert(::Type{Int}, ::WGS84) = 4326
 
+GeoFormatTypes.val(::WGS84) = "EPSG:4326"
+GeoFormatTypes.val(::WebMercator) = "EPSG:3857"
+
 "Convert web mercator x, y to longitude and latitude"
 project(point, ::T, ::T) where T = point
 function project(point, from::WebMercator, to::WGS84)

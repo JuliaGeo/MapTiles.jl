@@ -2,7 +2,7 @@ module MapTiles
 
 using GeoInterface: GeoInterface, Extent, extent
 using GeoFormatTypes: EPSG, CoordinateReferenceSystemFormat
-import Extents
+import Extents, GeoFormatTypes
 
 export Tile, TileGrid
 
