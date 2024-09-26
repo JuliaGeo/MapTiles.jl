@@ -13,18 +13,6 @@ which can then be downloaded and plotted. [Tyler.jl](https://github.com/MakieOrg
 is a [Makie](http://makie.org/) package that uses MapTiles and TileProviders to plot
 interactive web maps, for instance as a background layer to plot geospatial data on top of.
 
-## Installation
-
-[MapTiles.jl](https://github.com/JuliaGeo/MapTiles.jl) is not currently a [Julia registered package](https://juliapackages.com/).
-
-Currently only developer version is available. It can be installed using:
-
-```bash
-$ julia
-julia> ]
-(@v1.8) pkg> add https://github.com/JuliaGeo/MapTiles.jl
-```
-
 ## Usage
 
 ```julia

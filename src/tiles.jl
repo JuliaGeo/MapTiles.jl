@@ -29,6 +29,9 @@ Base.convert(::Type{String}, ::WGS84) = "EPSG:4326"
 Base.convert(::Type{Int}, ::WebMercator) = 3857
 Base.convert(::Type{Int}, ::WGS84) = 4326
 
+GeoFormatTypes.val(::WGS84) = "EPSG:4326"
+GeoFormatTypes.val(::WebMercator) = "EPSG:3857"
+
 "Convert web mercator x, y to longitude and latitude"
 project(point, ::T, ::T) where T = point
 function project(point, from::WebMercator, to::WGS84)
@@ -143,7 +146,7 @@ function TileGrid(bbox::Extent, zoom::Int, crs::WGS84)
 
     # Clamp bounding values.
     max_bbox = Extent(X = (-180.0, 180.0), Y = (-85.051129, 85.051129))
-    bbox = Extents.intersect(bbox, max_bbox)
+    bbox = Extents.intersection(bbox, max_bbox)
 
     ul_tile = Tile((bbox.X[1], bbox.Y[1]), zoom, crs)
     lr_tile = Tile((bbox.X[2] - LL_EPSILON, bbox.Y[2] + LL_EPSILON), zoom, crs)
@@ -174,7 +177,7 @@ function Base.iterate(tilegrid::TileGrid, state=1)
 end
 
 "Returns the bounding box of a tile in lng lat"
-function GeoInterface.extent(tile::Tile, crs::WGS84)
+function Extents.extent(tile::Tile, crs::WGS84)
     Z2 = 2^tile.z
 
     ul_lon_deg = tile.x / Z2 * 360.0 - 180.0
@@ -189,7 +192,7 @@ function GeoInterface.extent(tile::Tile, crs::WGS84)
 end
 
 "Get the web mercator bounding box of a tile"
-function GeoInterface.extent(tile::Tile, crs::WebMercator)
+function Extents.extent(tile::Tile, crs::WebMercator)
     tile_size = CE / 2^tile.z
 
     left = tile.x * tile_size - CE / 2
@@ -202,7 +205,7 @@ function GeoInterface.extent(tile::Tile, crs::WebMercator)
 end
 
 "Returns the bounding box of a tile in lng lat"
-function GeoInterface.extent(tilegrid::TileGrid, crs::WGS84)
+function Extents.extent(tilegrid::TileGrid, crs::WGS84)
     Z2 = 2^tilegrid.z
 
     ul_idx = tilegrid.grid[begin]
@@ -222,7 +225,7 @@ function GeoInterface.extent(tilegrid::TileGrid, crs::WGS84)
 end
 
 "Get the web mercator bounding box of a tile"
-function GeoInterface.extent(tilegrid::TileGrid, crs::WebMercator)
+function Extents.extent(tilegrid::TileGrid, crs::WebMercator)
     tile_size = CE / 2^tilegrid.z
 
     ul_idx = tilegrid.grid[begin]
@@ -238,4 +241,6 @@ function GeoInterface.extent(tilegrid::TileGrid, crs::WebMercator)
     return Extent(X=(left, right), Y=(bottom, top))
 end
 
-
+function GeoInterface.extent(tile::Union{Tile, TileGrid}, crs::Union{WGS84, WebMercator})
+    return Extents.extent(tile, crs)
+end
