@@ -122,7 +122,7 @@ function TileGrid(bbox::Extent, zoom::Int, crs::WGS84)
     # Mercantile splits the bbox in two along the antimeridian if this happens.
     # Decide if that case should be handled here or before, also considering
     # antimeridian discussion in https://github.com/rafaqz/Extents.jl/issues/4
-    @assert bbox.X[1] < bbox.X[2]
+    @assert bbox.X[1] <= bbox.X[2]
 
     # Clamp bounding values.
     max_bbox = Extent(X = (-180.0, 180.0), Y = (-85.051129, 85.051129))
