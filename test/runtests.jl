@@ -45,6 +45,11 @@ end
     # creating a TileGrid from a web mercator extent
     webbox = MT.project_extent(bbox, MT.wgs84, MT.web_mercator)
     @test tilegrid === TileGrid(webbox, 8, MT.web_mercator)
+
+    @testset "equal X works" begin
+        bbox = Extent(X = (-1.23, -1.23), Y = (-5.68, 4.77))
+        @test_nowarn tilegrid = TileGrid(bbox, 8, MT.web_mercator)
+    end
 end
 
 @testset "project" begin
