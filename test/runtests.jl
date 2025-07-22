@@ -89,5 +89,6 @@ end
 Aqua.test_all(MapTiles)
 
 include("test_crs_interface.jl")
+include("test_custom_tiles.jl")
 
 end
