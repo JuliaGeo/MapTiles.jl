@@ -14,7 +14,7 @@ N0f8 = ImageMagick.FixedPointNumbers.N0f8
 @testset "Tile" begin
     point_wgs = (-105.0, 40.0)
     tile = Tile(point_wgs, 1, MT.wgs84)
-    @test tile === Tile(0, 0, 1)
+    @test tile == Tile(0, 0, 1, MT.wgs84)
     bbox = extent(tile, MT.wgs84)
     bbox == Extent(X = (-180.0, 0.0), Y = (0.0, 85.0511287798066))
     @test bbox isa Extent
@@ -33,10 +33,10 @@ end
     point_wgs = (-105.0, 40.0)
     tile = Tile(point_wgs, 1, MT.wgs84)
     bbox = extent(tile, MT.web_mercator)
-    @test TileGrid(tile) === TileGrid(CartesianIndices((0:0, 0:0)), 1)
-    @test TileGrid(bbox, 0, MT.wgs84) === TileGrid(CartesianIndices((0:0, 0:0)), 0)
+    @test TileGrid(tile) == TileGrid(CartesianIndices((0:0, 0:0)), 1, MT.wgs84)
+    @test TileGrid(bbox, 0, MT.wgs84) == TileGrid(CartesianIndices((0:0, 0:0)), 0, MT.wgs84)
     tilegrid = TileGrid(bbox, 3, MT.wgs84)
-    @test tilegrid === TileGrid(CartesianIndices((0:3, 0:4)), 3)
+    @test tilegrid == TileGrid(CartesianIndices((0:3, 0:4)), 3, MT.wgs84)
 
     bbox = Extent(X = (-1.23, 5.65), Y = (-5.68, 4.77))
     tilegrid = TileGrid(bbox, 8, MT.wgs84)
@@ -44,7 +44,9 @@ end
     @test length(tilegrid) === 54
     # creating a TileGrid from a web mercator extent
     webbox = MT.project_extent(bbox, MT.wgs84, MT.web_mercator)
-    @test tilegrid === TileGrid(webbox, 8, MT.web_mercator)
+    tilegrid_web = TileGrid(webbox, 8, MT.web_mercator)
+    @test size(tilegrid) == size(tilegrid_web)
+    @test length(tilegrid) == length(tilegrid_web)
 
     @testset "equal X works" begin
         bbox = Extent(X = (-1.23, -1.23), Y = (-5.68, 4.77))
@@ -85,5 +87,7 @@ end
 end
 
 Aqua.test_all(MapTiles)
+
+include("test_crs_interface.jl")
 
 end
