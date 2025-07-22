@@ -131,7 +131,7 @@ struct TileGrid{T<:CoordinateReferenceSystemFormat} <: AbstractTileGrid
     crs::T
 end
 
-TileGrid(tile::Tile) = TileGrid(CartesianIndices((tile.x:tile.x, tile.y:tile.y)), tile.z, crs(tile))
+TileGrid(tile::Tile) = TileGrid(CartesianIndices((tile.x:tile.x, tile.y:tile.y)), tile.z, GeoInterface.crs(tile))
 
 "Get the tiles overlapped by a geographic bounding box"
 function TileGrid(bbox::Extent, zoom::Int, crs::WGS84)
@@ -161,7 +161,7 @@ end
 
 Base.length(tilegrid::TileGrid) = length(tilegrid.grid)
 Base.size(tilegrid::TileGrid, dims...) = size(tilegrid.grid, dims...)
-Base.getindex(tilegrid::TileGrid, i) = Tile(tilegrid.grid[i], tilegrid.z, crs(tilegrid))
+Base.getindex(tilegrid::TileGrid, i) = Tile(tilegrid.grid[i], tilegrid.z, GeoInterface.crs(tilegrid))
 Base.firstindex(tilegrid::TileGrid) = firstindex(tilegrid.grid)
 Base.lastindex(tilegrid::TileGrid) = lastindex(tilegrid.grid)
 

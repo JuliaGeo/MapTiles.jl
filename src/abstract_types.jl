@@ -4,11 +4,11 @@ abstract type AbstractTileGrid end
 
 # Interface functions for AbstractTile
 """
-    crs(tile::AbstractTile)
+    GeoInterface.crs(tile::AbstractTile)
 
 Get the coordinate reference system of a tile.
 """
-crs(tile::AbstractTile) = tile.crs
+GeoInterface.crs(tile::AbstractTile) = tile.crs
 
 """
     x(tile::AbstractTile)
@@ -43,7 +43,7 @@ zoom(tile::AbstractTile) = z(tile)
 
 Get the bounding box of a tile in its native CRS.
 """
-bounds(tile::AbstractTile) = extent(tile, crs(tile))
+bounds(tile::AbstractTile) = extent(tile, GeoInterface.crs(tile))
 
 """
     bounds(tile::AbstractTile, target_crs)
@@ -54,11 +54,11 @@ bounds(tile::AbstractTile, target_crs::CoordinateReferenceSystemFormat) = extent
 
 # Interface functions for AbstractTileGrid
 """
-    crs(tilegrid::AbstractTileGrid)
+    GeoInterface.crs(tilegrid::AbstractTileGrid)
 
 Get the coordinate reference system of a tile grid.
 """
-crs(tilegrid::AbstractTileGrid) = tilegrid.crs
+GeoInterface.crs(tilegrid::AbstractTileGrid) = tilegrid.crs
 
 """
     zoom(tilegrid::AbstractTileGrid)
@@ -72,7 +72,7 @@ zoom(tilegrid::AbstractTileGrid) = tilegrid.z
 
 Get the bounding box of a tile grid in its native CRS.
 """
-bounds(tilegrid::AbstractTileGrid) = extent(tilegrid, crs(tilegrid))
+bounds(tilegrid::AbstractTileGrid) = extent(tilegrid, GeoInterface.crs(tilegrid))
 
 """
     bounds(tilegrid::AbstractTileGrid, target_crs)

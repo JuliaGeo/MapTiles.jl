@@ -1,6 +1,6 @@
 using MapTiles
 using Test
-using GeoInterface: Extent
+using GeoInterface: Extent, GeoInterface
 
 @testset "CRS Interface Tests" begin
     @testset "Tile with CRS" begin
@@ -9,8 +9,8 @@ using GeoInterface: Extent
         tile_web = Tile(10, 20, 5, MapTiles.web_mercator)
         
         # Test interface functions
-        @test MapTiles.crs(tile_wgs) === MapTiles.wgs84
-        @test MapTiles.crs(tile_web) === MapTiles.web_mercator
+        @test GeoInterface.crs(tile_wgs) === MapTiles.wgs84
+        @test GeoInterface.crs(tile_web) === MapTiles.web_mercator
         @test MapTiles.x(tile_wgs) === 10
         @test MapTiles.y(tile_wgs) === 20
         @test MapTiles.z(tile_wgs) === 5
@@ -42,8 +42,8 @@ using GeoInterface: Extent
         grid_web = TileGrid(bbox_web, 8, MapTiles.web_mercator)
         
         # Test interface functions
-        @test MapTiles.crs(grid_wgs) === MapTiles.wgs84
-        @test MapTiles.crs(grid_web) === MapTiles.web_mercator
+        @test GeoInterface.crs(grid_wgs) === MapTiles.wgs84
+        @test GeoInterface.crs(grid_web) === MapTiles.web_mercator
         @test MapTiles.zoom(grid_wgs) === 8
         
         # Test bounds in native CRS
@@ -61,7 +61,7 @@ using GeoInterface: Extent
         
         # Test that tiles from grid have the same CRS as the grid
         first_tile = grid_wgs[1]
-        @test MapTiles.crs(first_tile) === MapTiles.wgs84
+        @test GeoInterface.crs(first_tile) === MapTiles.wgs84
     end
     
     @testset "Backward compatibility" begin
@@ -69,13 +69,13 @@ using GeoInterface: Extent
         point_wgs = (-105.0, 40.0)
         old_tile = Tile(point_wgs, 8, MapTiles.wgs84)
         @test old_tile isa MapTiles.AbstractTile
-        @test MapTiles.crs(old_tile) === MapTiles.wgs84
+        @test GeoInterface.crs(old_tile) === MapTiles.wgs84
         
         # Test old TileGrid constructor
         bbox = Extent(X = (-1.23, 5.65), Y = (-5.68, 4.77))
         old_grid = TileGrid(bbox, 8, MapTiles.wgs84)
         @test old_grid isa MapTiles.AbstractTileGrid
-        @test MapTiles.crs(old_grid) === MapTiles.wgs84
+        @test GeoInterface.crs(old_grid) === MapTiles.wgs84
     end
     
     @testset "Type stability" begin
@@ -83,7 +83,7 @@ using GeoInterface: Extent
         tile_web = Tile(10, 20, 5, MapTiles.web_mercator)
         
         # Check that interface functions are type stable
-        @test @inferred(MapTiles.crs(tile_wgs)) === MapTiles.wgs84
+        @test @inferred(GeoInterface.crs(tile_wgs)) === MapTiles.wgs84
         @test @inferred(MapTiles.x(tile_wgs)) === 10
         @test @inferred(MapTiles.y(tile_wgs)) === 20
         @test @inferred(MapTiles.z(tile_wgs)) === 5
