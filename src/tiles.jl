@@ -71,16 +71,30 @@ end
 const web_mercator = WebMercator()
 const wgs84 = WGS84()
 
-struct Tile
+# Concrete tile type with CRS
+struct Tile{T<:CoordinateReferenceSystemFormat} <: AbstractTile
     x::Int
     y::Int
     z::Int
+    crs::T
 end
 
+# Constructor without CRS for backward compatibility (defaults to WebMercator)
+Tile(x::Int, y::Int, z::Int) = Tile(x, y, z, web_mercator)
+
 Tile(index::CartesianIndex{2}, zoom::Integer) = Tile(index[1], index[2], zoom)
+Tile(index::CartesianIndex{2}, zoom::Integer, crs::T) where T<:CoordinateReferenceSystemFormat = Tile(index[1], index[2], zoom, crs)
+# Resolve ambiguity with Tile(point, zoom, crs::WGS84)
+Tile(index::CartesianIndex{2}, zoom::Integer, crs::WGS84) = Tile(index[1], index[2], zoom, crs)
 
 "Get the tile containing a longitude and latitude"
 function Tile(point, zoom::Integer, crs::WGS84)
+    x, y = _tile_indices_from_point(point, zoom, crs)
+    return Tile(x, y, zoom, crs)
+end
+
+# Internal function to calculate tile indices
+function _tile_indices_from_point(point, zoom::Integer, crs::WGS84)
     lng = GeoInterface.x(point)
     lat = GeoInterface.y(point)
 
@@ -107,15 +121,17 @@ function Tile(point, zoom::Integer, crs::WGS84)
     else
         floor(Int, (y + EPSILON) * Z2)
     end
-    return Tile(xtile, ytile, zoom)
+    return xtile, ytile
 end
 
-struct TileGrid
+# Concrete tile grid type with CRS
+struct TileGrid{T<:CoordinateReferenceSystemFormat} <: AbstractTileGrid
     grid::CartesianIndices{2, Tuple{UnitRange{Int}, UnitRange{Int}}}
     z::Int
+    crs::T
 end
 
-TileGrid(tile::Tile) = TileGrid(CartesianIndices((tile.x:tile.x, tile.y:tile.y)), tile.z)
+TileGrid(tile::Tile) = TileGrid(CartesianIndices((tile.x:tile.x, tile.y:tile.y)), tile.z, GeoInterface.crs(tile))
 
 "Get the tiles overlapped by a geographic bounding box"
 function TileGrid(bbox::Extent, zoom::Int, crs::WGS84)
@@ -132,18 +148,20 @@ function TileGrid(bbox::Extent, zoom::Int, crs::WGS84)
     lr_tile = Tile((bbox.X[2] - LL_EPSILON, bbox.Y[2] + LL_EPSILON), zoom, crs)
 
     grid = CartesianIndices((ul_tile.x:lr_tile.x, lr_tile.y:ul_tile.y))
-    return TileGrid(grid, zoom)
+    return TileGrid(grid, zoom, crs)
 end
 
 "Get the tiles overlapped by a web mercator bounding box"
 function TileGrid(bbox::Extent, zoom::Int, crs::WebMercator)
-    bbox = project_extent(bbox, crs, wgs84)
-    return TileGrid(bbox, zoom, wgs84)
+    bbox_wgs = project_extent(bbox, crs, wgs84)
+    grid_wgs = TileGrid(bbox_wgs, zoom, wgs84)
+    # Create a new TileGrid with WebMercator CRS but same grid indices
+    return TileGrid(grid_wgs.grid, zoom, crs)
 end
 
 Base.length(tilegrid::TileGrid) = length(tilegrid.grid)
 Base.size(tilegrid::TileGrid, dims...) = size(tilegrid.grid, dims...)
-Base.getindex(tilegrid::TileGrid, i) = Tile(tilegrid.grid[i], tilegrid.z)
+Base.getindex(tilegrid::TileGrid, i) = Tile(tilegrid.grid[i], tilegrid.z, GeoInterface.crs(tilegrid))
 Base.firstindex(tilegrid::TileGrid) = firstindex(tilegrid.grid)
 Base.lastindex(tilegrid::TileGrid) = lastindex(tilegrid.grid)
 
@@ -156,7 +174,7 @@ function Base.iterate(tilegrid::TileGrid, state=1)
 end
 
 "Returns the bounding box of a tile in lng lat"
-function Extents.extent(tile::Tile, crs::WGS84)
+function Extents.extent(tile::AbstractTile, crs::WGS84)
     Z2 = 2^tile.z
 
     ul_lon_deg = tile.x / Z2 * 360.0 - 180.0
@@ -171,7 +189,7 @@ function Extents.extent(tile::Tile, crs::WGS84)
 end
 
 "Get the web mercator bounding box of a tile"
-function Extents.extent(tile::Tile, crs::WebMercator)
+function Extents.extent(tile::AbstractTile, crs::WebMercator)
     tile_size = CE / 2^tile.z
 
     left = tile.x * tile_size - CE / 2
@@ -184,7 +202,7 @@ function Extents.extent(tile::Tile, crs::WebMercator)
 end
 
 "Returns the bounding box of a tile in lng lat"
-function Extents.extent(tilegrid::TileGrid, crs::WGS84)
+function Extents.extent(tilegrid::AbstractTileGrid, crs::WGS84)
     Z2 = 2^tilegrid.z
 
     ul_idx = tilegrid.grid[begin]
@@ -204,7 +222,7 @@ function Extents.extent(tilegrid::TileGrid, crs::WGS84)
 end
 
 "Get the web mercator bounding box of a tile"
-function Extents.extent(tilegrid::TileGrid, crs::WebMercator)
+function Extents.extent(tilegrid::AbstractTileGrid, crs::WebMercator)
     tile_size = CE / 2^tilegrid.z
 
     ul_idx = tilegrid.grid[begin]
@@ -220,6 +238,6 @@ function Extents.extent(tilegrid::TileGrid, crs::WebMercator)
     return Extent(X=(left, right), Y=(bottom, top))
 end
 
-function GeoInterface.extent(tile::Union{Tile, TileGrid}, crs::Union{WGS84, WebMercator})
+function GeoInterface.extent(tile::Union{AbstractTile, AbstractTileGrid}, crs::Union{WGS84, WebMercator})
     return Extents.extent(tile, crs)
 end
