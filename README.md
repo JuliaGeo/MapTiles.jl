@@ -1,7 +1,7 @@
 # MapTiles
 
 [![CI](https://github.com/JuliaGeo/MapTiles.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeo/MapTiles.jl/actions?query=workflow%3ACI)
-[![codecov.io](http://codecov.io/github/JuliaGeo/MapTiles.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaGeo/MapTiles.jl?branch=master)
+[![codecov.io](http://codecov.io/github/JuliaGeo/MapTiles.jl/coverage.svg?branch=main)](http://codecov.io/github/JuliaGeo/MapTiles.jl?branch=main)
 
 MapTiles is a [Julia](https://julialang.org/) package for working with
 [tiled web maps](https://en.wikipedia.org/wiki/Tiled_web_map), also known as slippy maps.
